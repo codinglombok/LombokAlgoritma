@@ -28,7 +28,7 @@ jobs:
       - run: npm run lint
       - run: npm run build
       - run: npm test -- --coverage
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v7
         if: matrix.node == '20'
         with:
           flags: typescript
