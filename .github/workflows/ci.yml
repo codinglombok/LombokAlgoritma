@@ -19,7 +19,7 @@ jobs:
         node: ["20", "22"]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
           cache: npm
@@ -159,7 +159,7 @@ jobs:
     needs: [typescript, rust, python, go, php]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with: { node-version: "20", cache: npm }
       - uses: dtolnay/rust-toolchain@stable
       - uses: actions/setup-python@v5
