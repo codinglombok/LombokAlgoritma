@@ -1,0 +1,48 @@
+name: Algorithm Request
+description: Request a new algorithm to be added
+labels: ["enhancement", "algorithm-request"]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Algorithm Name
+      placeholder: "e.g. Fisher-Yates Shuffle"
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - Sort
+        - Search
+        - Graph
+        - Math / Number Theory
+        - String
+        - Compression
+        - Data Structure
+        - Geometry
+        - Machine Learning
+        - Concurrent
+        - Cryptography
+        - Hardware
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Algorithm Description
+      description: What does it do? What problem does it solve?
+    validations:
+      required: true
+  - type: input
+    id: reference
+    attributes:
+      label: Reference / Paper / RFC
+      placeholder: "e.g. https://en.wikipedia.org/wiki/..."
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use Case in Lombok Ecosystem
+      description: Which library or use case needs this?

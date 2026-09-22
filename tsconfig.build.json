@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist/esm",
+    "emitDeclarationOnly": false
+  },
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.bench.ts"]
+}

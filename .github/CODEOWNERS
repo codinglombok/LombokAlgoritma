@@ -1,0 +1,35 @@
+# LombokAlgoritma Code Owners
+# Each port is owned by its primary language maintainer
+
+# Primary TypeScript implementation
+/src/                    @codinglombok
+
+# Language ports
+/ports/rust/             @codinglombok
+/ports/python/           @codinglombok
+/ports/go/               @codinglombok
+/ports/php/              @codinglombok
+/ports/java/             @codinglombok
+/ports/cpp/              @codinglombok
+/ports/swift/            @codinglombok
+/ports/kotlin/           @codinglombok
+/ports/csharp/           @codinglombok
+/ports/perl/             @codinglombok
+/ports/sql/              @codinglombok
+/ports/ts/               @codinglombok
+
+# Security-critical (require @codinglombok review)
+/src/math/sha256.ts      @codinglombok
+/src/math/sha512.ts      @codinglombok
+/src/math/blake3.ts      @codinglombok
+/src/math/argon2id.ts    @codinglombok
+/src/math/aes-gcm.ts     @codinglombok
+/src/math/chacha20.ts    @codinglombok
+/src/math/x25519.ts      @codinglombok
+/src/math/hkdf.ts        @codinglombok
+/src/math/ntt.ts         @codinglombok
+/tests/security/         @codinglombok
+
+# Documentation
+/docs/                   @codinglombok
+*.md                     @codinglombok

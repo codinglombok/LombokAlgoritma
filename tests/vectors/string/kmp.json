@@ -1,0 +1,41 @@
+{
+  "algorithm": "kmp_search",
+  "version": "0.1.0",
+  "vectors": [
+    {
+      "id": "kmp-001",
+      "text": "abcabcabc",
+      "pattern": "abc",
+      "expected": [
+        0,
+        3,
+        6
+      ]
+    },
+    {
+      "id": "kmp-002",
+      "text": "hello",
+      "pattern": "xyz",
+      "expected": []
+    },
+    {
+      "id": "kmp-003",
+      "text": "banana",
+      "pattern": "a",
+      "expected": [
+        1,
+        3,
+        5
+      ]
+    },
+    {
+      "id": "kmp-004",
+      "text": "aaa",
+      "pattern": "aa",
+      "expected": [
+        0,
+        1
+      ]
+    }
+  ]
+}

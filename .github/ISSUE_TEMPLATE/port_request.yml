@@ -1,0 +1,31 @@
+name: New Language Port Request
+description: Request a new language port
+labels: ["enhancement", "port"]
+body:
+  - type: input
+    id: language
+    attributes:
+      label: Language
+      placeholder: "e.g. Ruby, Haskell, Zig, Julia, R"
+    validations:
+      required: true
+  - type: input
+    id: registry
+    attributes:
+      label: Target Registry
+      placeholder: "e.g. RubyGems, Hackage, pkg.ziglang.org, CRAN"
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Requested Scope
+      options:
+        - CORE (sort, search, math, string)
+        - FULL (all 12 categories)
+        - SPECIFIC (list below)
+  - type: textarea
+    id: justification
+    attributes:
+      label: Justification
+      description: Why is this language port needed?
+    validations:
+      required: true

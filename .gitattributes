@@ -1,0 +1,33 @@
+# Auto-detect text files and normalize line endings
+* text=auto
+
+# Force LF for all text files
+*.ts   text eol=lf
+*.js   text eol=lf
+*.json text eol=lf
+*.md   text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+*.rs   text eol=lf
+*.go   text eol=lf
+*.php  text eol=lf
+*.java text eol=lf
+*.kt   text eol=lf
+*.swift text eol=lf
+*.cs   text eol=lf
+*.cpp  text eol=lf
+*.hpp  text eol=lf
+*.py   text eol=lf
+*.pl   text eol=lf
+*.pm   text eol=lf
+*.sql  text eol=lf
+*.sh   text eol=lf
+
+# Binary files — no diff, no conversion
+*.wasm  binary
+*.png   binary
+*.jpg   binary
+*.ico   binary
+*.gz    binary
+*.zip   binary

@@ -1,0 +1,31 @@
+{
+  "algorithm": "miller_rabin_primality",
+  "version": "0.1.0",
+  "vectors": [
+    {
+      "id": "mr-001",
+      "n": "2",
+      "expected": true
+    },
+    {
+      "id": "mr-002",
+      "n": "4",
+      "expected": false
+    },
+    {
+      "id": "mr-003",
+      "n": "97",
+      "expected": true
+    },
+    {
+      "id": "mr-004",
+      "n": "100",
+      "expected": false
+    },
+    {
+      "id": "mr-005",
+      "n": "2147483647",
+      "expected": true
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+name: Security Vulnerability Report
+description: Report a security vulnerability (NON-CRITICAL only — for critical use SECURITY.md)
+labels: ["security"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **For CRITICAL security issues, do NOT use this form.**
+        Instead, follow the process in [SECURITY.md](../SECURITY.md) for private disclosure.
+  - type: input
+    id: component
+    attributes:
+      label: Affected Component
+      placeholder: "e.g. src/math/sha256.ts, ports/rust/src/math/"
+    validations:
+      required: true
+  - type: dropdown
+    id: type
+    attributes:
+      label: Vulnerability Type
+      options:
+        - Timing side-channel (crypto)
+        - Integer overflow
+        - Algorithm complexity attack (DoS)
+        - Incorrect output (correctness)
+        - Memory safety
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+    validations:
+      required: true

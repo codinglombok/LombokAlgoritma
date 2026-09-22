@@ -1,0 +1,11 @@
+# LombokAlgoritma Rust Clippy Configuration
+# Deny all warnings in CI — zero tolerance
+
+msrv = "1.75.0"
+
+# Disallow: these are correct for algorithm libraries
+avoid-breaking-exported-api = false
+
+# Cognitive complexity threshold for algorithm functions
+# (some graph/crypto algorithms legitimately complex)
+cognitive-complexity-threshold = 30

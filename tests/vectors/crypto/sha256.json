@@ -1,0 +1,32 @@
+{
+  "algorithm": "sha256",
+  "version": "0.1.0",
+  "standard": "FIPS 180-4",
+  "vectors": [
+    {
+      "id": "sha256-001",
+      "input_hex": "",
+      "expected_hex": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "sha256-002",
+      "input_utf8": "abc",
+      "expected_hex": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+    },
+    {
+      "id": "sha256-003",
+      "input_utf8": "hello world",
+      "expected_hex": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
+    },
+    {
+      "id": "sha256-004",
+      "input_utf8": "LombokAlgoritma",
+      "expected_hex": "1211d891f867687f49e62d0dd4e901a18eb934d8b888983cca8a9a8ccecbdad1"
+    },
+    {
+      "id": "sha256-005",
+      "input_utf8": "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq",
+      "expected_hex": "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1"
+    }
+  ]
+}

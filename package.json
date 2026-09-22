@@ -1,0 +1,173 @@
+{
+  "name": "lombokalgoritma",
+  "version": "0.1.0",
+  "description": "Comprehensive multi-language algorithm library — 160+ algorithms, 12 language ports, SIMD-optimized, zero external dependencies. Part of the Lombok Ecosystem.",
+  "author": "codinglombok <codinglombok@gmail.com>",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/codinglombok/LombokAlgoritma",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codinglombok/LombokAlgoritma.git"
+  },
+  "bugs": {
+    "url": "https://github.com/codinglombok/LombokAlgoritma/issues"
+  },
+  "keywords": [
+    "algorithm",
+    "algorithms",
+    "sort",
+    "search",
+    "graph",
+    "data-structure",
+    "cryptography",
+    "machine-learning",
+    "compression",
+    "geometry",
+    "string-algorithms",
+    "simd",
+    "wasm",
+    "zero-dependency",
+    "multi-language",
+    "lombok-ecosystem",
+    "typescript",
+    "javascript",
+    "dijkstra",
+    "quicksort",
+    "mergesort",
+    "astar",
+    "huffman",
+    "sha256",
+    "aes",
+    "chacha20",
+    "kmeans",
+    "bloom-filter",
+    "trie",
+    "red-black-tree",
+    "avl-tree",
+    "leiden",
+    "pagerank"
+  ],
+  "type": "module",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/types/index.d.ts"
+    },
+    "./sort": {
+      "import": "./dist/esm/sort/index.js",
+      "require": "./dist/cjs/sort/index.js",
+      "types": "./dist/types/sort/index.d.ts"
+    },
+    "./search": {
+      "import": "./dist/esm/search/index.js",
+      "require": "./dist/cjs/search/index.js",
+      "types": "./dist/types/search/index.d.ts"
+    },
+    "./graph": {
+      "import": "./dist/esm/graph/index.js",
+      "require": "./dist/cjs/graph/index.js",
+      "types": "./dist/types/graph/index.d.ts"
+    },
+    "./math": {
+      "import": "./dist/esm/math/index.js",
+      "require": "./dist/cjs/math/index.js",
+      "types": "./dist/types/math/index.d.ts"
+    },
+    "./string": {
+      "import": "./dist/esm/string/index.js",
+      "require": "./dist/cjs/string/index.js",
+      "types": "./dist/types/string/index.d.ts"
+    },
+    "./compression": {
+      "import": "./dist/esm/compression/index.js",
+      "require": "./dist/cjs/compression/index.js",
+      "types": "./dist/types/compression/index.d.ts"
+    },
+    "./datastructure": {
+      "import": "./dist/esm/datastructure/index.js",
+      "require": "./dist/cjs/datastructure/index.js",
+      "types": "./dist/types/datastructure/index.d.ts"
+    },
+    "./geometry": {
+      "import": "./dist/esm/geometry/index.js",
+      "require": "./dist/cjs/geometry/index.js",
+      "types": "./dist/types/geometry/index.d.ts"
+    },
+    "./ml": {
+      "import": "./dist/esm/ml/index.js",
+      "require": "./dist/cjs/ml/index.js",
+      "types": "./dist/types/ml/index.d.ts"
+    },
+    "./concurrent": {
+      "import": "./dist/esm/concurrent/index.js",
+      "require": "./dist/cjs/concurrent/index.js",
+      "types": "./dist/types/concurrent/index.d.ts"
+    },
+    "./crypto": {
+      "import": "./dist/esm/math/sha256.js",
+      "require": "./dist/cjs/math/sha256.js",
+      "types": "./dist/types/math/sha256.d.ts"
+    },
+    "./hardware": {
+      "import": "./dist/esm/hardware/index.js",
+      "require": "./dist/cjs/hardware/index.js",
+      "types": "./dist/types/hardware/index.d.ts"
+    }
+  },
+  "sideEffects": false,
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "tsup",
+    "build:esm": "tsup --format esm",
+    "build:cjs": "tsup --format cjs",
+    "build:types": "tsc -p tsconfig.build.json --emitDeclarationOnly",
+    "build:wasm": "bash scripts/build_wasm.sh",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "bench": "vitest bench",
+    "bench:compare": "bash scripts/bench_compare.sh",
+    "vectors:generate": "tsx scripts/generate_vectors.ts",
+    "vectors:validate": "bash scripts/validate_vectors.sh",
+    "lint": "biome check . && eslint .",
+    "lint:fix": "biome check --write . && eslint --fix .",
+    "format": "biome format --write .",
+    "typecheck": "tsc --noEmit",
+    "audit": "npm audit --audit-level=moderate",
+    "deps:check": "bash scripts/check_deps.sh",
+    "security:dudect": "bash scripts/dudect_verify.sh",
+    "clean": "rm -rf dist coverage",
+    "prepublishOnly": "npm run clean && npm run build && npm run test && npm run audit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@vitest/coverage-v8": "^2.0.0",
+    "biome": "^1.9.0",
+    "eslint": "^9.0.0",
+    "tsup": "^8.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0"
+  },
+  "peerDependencies": {
+    "lombokecc": "^0.2.0"
+  },
+  "peerDependenciesMeta": {
+    "lombokecc": {
+      "optional": true
+    }
+  }
+}

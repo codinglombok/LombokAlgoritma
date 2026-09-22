@@ -1,0 +1,12 @@
+#!/usr/bin/env perl
+use strict; use warnings; use Test::More;
+use LombokAlgoritma::Math qw(gcd lcm is_prime);
+
+is gcd(12,8), 4,  'gcd(12,8)=4';
+is gcd(0,5),  5,  'gcd(0,5)=5';
+is lcm(4,6),  12, 'lcm(4,6)=12';
+ok  is_prime(2),   '2 is prime';
+ok  is_prime(97),  '97 is prime';
+ok !is_prime(100), '100 not prime';
+ok  is_prime(2147483647), 'Mersenne prime';
+done_testing;

@@ -1,0 +1,52 @@
+name: Bug Report
+description: Report a bug in LombokAlgoritma
+labels: ["bug"]
+body:
+  - type: input
+    id: algorithm
+    attributes:
+      label: Algorithm / Module
+      placeholder: "e.g. sort/timsort, graph/leiden, math/sha256"
+    validations:
+      required: true
+  - type: input
+    id: language
+    attributes:
+      label: Language Port
+      placeholder: "e.g. TypeScript (primary), Rust, Python, Go, PHP..."
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: Clear description of what went wrong
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal Reproduction
+      description: Code to reproduce the bug
+      render: typescript
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Output
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Output
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: LombokAlgoritma Version
+      placeholder: "e.g. 0.1.0"
+    validations:
+      required: true

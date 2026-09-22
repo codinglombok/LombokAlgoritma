@@ -1,0 +1,68 @@
+{
+    "name": "codinglombok/lombokalgoritma",
+    "description": "Comprehensive multi-language algorithm library — 160+ algorithms, zero external deps. PHP port of LombokAlgoritma.",
+    "type": "library",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "codinglombok",
+            "email": "codinglombok@gmail.com",
+            "homepage": "https://github.com/codinglombok"
+        }
+    ],
+    "keywords": [
+        "algorithm",
+        "algorithms",
+        "sort",
+        "search",
+        "graph",
+        "data-structure",
+        "cryptography",
+        "machine-learning",
+        "compression",
+        "geometry",
+        "string-algorithms",
+        "zero-dependency",
+        "lombok-ecosystem"
+    ],
+    "homepage": "https://github.com/codinglombok/LombokAlgoritma",
+    "support": {
+        "issues": "https://github.com/codinglombok/LombokAlgoritma/issues",
+        "source":  "https://github.com/codinglombok/LombokAlgoritma"
+    },
+    "require": {
+        "php": "^8.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit":    "^11.0",
+        "phpstan/phpstan":    "^1.11",
+        "squizlabs/php_codesniffer": "^3.10"
+    },
+    "suggest": {
+        "codinglombok/lombokecc": "For ECC-verified algorithm output API (^0.2.0)"
+    },
+    "autoload": {
+        "psr-4": {
+            "LombokAlgoritma\\": "ports/php/src/LombokAlgoritma/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LombokAlgoritma\\Tests\\": "ports/php/tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true,
+        "preferred-install": "dist"
+    },
+    "scripts": {
+        "test": "phpunit",
+        "analyze": "phpstan analyse ports/php/src --level=9",
+        "lint": "phpcs --standard=PSR12 ports/php/src",
+        "lint:fix": "phpcbf --standard=PSR12 ports/php/src",
+        "ci": ["@lint", "@analyze", "@test"]
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

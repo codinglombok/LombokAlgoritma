@@ -1,0 +1,26 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "node",
+  "include-v-in-tag": true,
+  "tag-separator": "",
+  "changelog-sections": [
+    { "type": "feat",     "section": "### Added"    },
+    { "type": "fix",      "section": "### Fixed"    },
+    { "type": "perf",     "section": "### Performance" },
+    { "type": "refactor", "section": "### Refactored" },
+    { "type": "docs",     "section": "### Documentation" },
+    { "type": "test",     "section": "### Tests"    },
+    { "type": "chore",    "section": "### Chores", "hidden": true }
+  ],
+  "packages": {
+    ".": {
+      "release-type": "node",
+      "package-name": "lombokalgoritma",
+      "changelog-path": "CHANGELOG.md",
+      "bump-minor-pre-major": true,
+      "bump-patch-for-minor-pre-major": false
+    }
+  },
+  "pull-request-title-pattern": "chore: release ${version}",
+  "pull-request-header": "automated release for LombokAlgoritma"
+}

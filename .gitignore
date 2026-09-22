@@ -1,0 +1,80 @@
+# Build outputs
+dist/
+target/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+build/
+*.class
+*.jar
+*.war
+
+# Dependencies
+node_modules/
+vendor/
+.venv/
+venv/
+
+# Coverage
+coverage/
+coverage-php/
+coverage-php.xml
+*.lcov
+lcov.info
+
+# Benchmark results
+bench-results.json
+criterion/
+
+# Lock files (committed for apps, not libraries — but keep for reproducibility)
+# package-lock.json  <- keep
+# Cargo.lock         <- keep
+# go.sum             <- keep
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Rust
+*.rlib
+*.rmeta
+debug/
+fuzz/corpus/
+fuzz/artifacts/
+
+# WASM build output
+pkg/
+*.wasm
+
+# Go
+go/bin/
+
+# PHP
+composer.lock
+
+# Java / Maven / Kotlin
+.gradle/
+*.class
+*.jar
+
+# C++
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile.cmake
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+
+# Temp
+*.tmp
+*.bak
+.DS_Store

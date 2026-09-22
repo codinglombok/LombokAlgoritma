@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# LombokAlgoritma — Cross-Language Test Vector Validation
+# Apache-2.0 — @codinglombok
+# Runs every available language against shared JSON test vectors
+
+set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$SCRIPT_DIR/.."
+VECTORS_DIR="$ROOT/tests/vectors"
+PASS=0; FAIL=0; SKIP=0
+
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; NC='\033[0m'
+
+log_pass() { echo -e "${GREEN}[PASS]${NC} $1"; ((PASS++)) || true; }
+log_fail() { echo -e "${RED}[FAIL]${NC} $1"; ((FAIL++)) || true; }
+log_skip() { echo -e "${YELLOW}[SKIP]${NC} $1"; ((SKIP++)) || true; }
+
+echo "=== LombokAlgoritma — Cross-Language Vector Validation ==="
+echo "Vectors: $VECTORS_DIR"
+echo ""
+
+# TypeScript (primary reference — must always pass)
+if command -v node &>/dev/null; then
+  echo "--- TypeScript ---"
+  if node --input-type=module << 'JSEOF' 2>/dev/null
+    import { sha256hex } from './src/math/sha256.js';
+    const h = sha256hex('');
+    const expected = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
+    if (h !== expected) { console.error('SHA-256 FAIL:', h); process.exit(1); }
+    console.log('SHA-256 vector OK');
+JSEOF
+  then log_pass "TypeScript SHA-256 NIST vector"
+  else log_fail "TypeScript SHA-256 NIST vector"; fi
+else log_skip "TypeScript (node not found)"; fi
+
+# Rust
+if command -v cargo &>/dev/null; then
+  echo "--- Rust ---"
+  if cd "$ROOT" && cargo test --quiet --all-features 2>/dev/null; then
+    log_pass "Rust all tests"
+  else log_fail "Rust tests"; fi
+else log_skip "Rust (cargo not found)"; fi
+
+# Python
+if command -v python3 &>/dev/null && [ -d "$ROOT/ports/python" ]; then
+  echo "--- Python ---"
+  if python3 -m pytest "$ROOT/ports/python/tests" -q --tb=no 2>/dev/null; then
+    log_pass "Python all tests"
+  else log_fail "Python tests"; fi
+else log_skip "Python port (not available)"; fi
+
+# Go
+if command -v go &>/dev/null && [ -d "$ROOT/ports/go" ]; then
+  echo "--- Go ---"
+  if cd "$ROOT/ports/go" && go test ./... -count=1 -q 2>/dev/null; then
+    log_pass "Go all tests"
+  else log_fail "Go tests"; fi
+else log_skip "Go port (not available)"; fi
+
+# PHP
+if command -v php &>/dev/null && [ -f "$ROOT/vendor/bin/phpunit" ]; then
+  echo "--- PHP ---"
+  if cd "$ROOT" && php vendor/bin/phpunit --no-coverage -q 2>/dev/null; then
+    log_pass "PHP all tests"
+  else log_fail "PHP tests"; fi
+else log_skip "PHP port (vendor not installed)"; fi
+
+echo ""
+echo "=== Results ==="
+echo -e "  ${GREEN}PASS: $PASS${NC}  ${RED}FAIL: $FAIL${NC}  ${YELLOW}SKIP: $SKIP${NC}"
+if [ "$FAIL" -gt 0 ]; then echo -e "${RED}VALIDATION FAILED${NC}"; exit 1; fi
+echo -e "${GREEN}ALL VALIDATIONS PASSED${NC}"

@@ -1,0 +1,103 @@
+[workspace]
+members = [
+    "ports/rust",
+    "ports/rust/capi",
+    "ports/rust/wasm",
+    "ports/rust/embedded",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["codinglombok <codinglombok@gmail.com>"]
+license = "Apache-2.0"
+repository = "https://github.com/codinglombok/LombokAlgoritma"
+homepage = "https://github.com/codinglombok/LombokAlgoritma"
+description = "Comprehensive multi-language algorithm library — 160+ algorithms, SIMD-optimized, zero external deps"
+keywords = ["algorithm", "sort", "graph", "cryptography", "simd"]
+categories = ["algorithms", "cryptography", "data-structures", "no-std"]
+readme = "README.md"
+
+[workspace.dependencies]
+# Zero external runtime dependencies.
+# These are DEV-ONLY (testing, building, benchmarking):
+criterion = { version = "0.5", features = ["html_reports"] }
+proptest  = "1.4"
+
+[package]
+name = "lombokalgoritma"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme.workspace = true
+
+# --- Feature flags ---
+[features]
+default   = ["std", "simd"]
+std       = []                   # Enable std (heap allocation, IO)
+simd      = []                   # Enable runtime SIMD dispatch
+no_std    = []                   # Bare-metal / RTOS / MCU target
+ecc       = []                   # Enable LombokECC verified-output API
+wasm      = ["wasm-bindgen"]     # WASM target (wasm32-unknown-unknown)
+crypto    = []                   # Constant-time cryptographic primitives
+full      = ["std", "simd", "ecc", "crypto"]
+
+# --- Dependencies ---
+[dependencies]
+# NO runtime external crates. Zero deps in core.
+# WASM-only optional: wasm-bindgen for JS interop
+wasm-bindgen = { version = "0.2", optional = true }
+
+[dev-dependencies]
+criterion = { workspace = true }
+proptest  = { workspace = true }
+
+# --- Build ---
+[build-dependencies]
+# build.rs reads target to enable correct SIMD feature flags
+
+# --- Targets (cargo build --target) ---
+# Native: x86_64-unknown-linux-gnu, aarch64-unknown-linux-gnu, x86_64-pc-windows-msvc
+# WASM:   wasm32-unknown-unknown (with SIMD128)
+# Embedded: thumbv7em-none-eabihf (Cortex-M4F+), riscv32imc-unknown-none-elf
+
+[[bench]]
+name    = "sort_bench"
+harness = false
+
+[[bench]]
+name    = "graph_bench"
+harness = false
+
+[[bench]]
+name    = "ml_bench"
+harness = false
+
+[[bench]]
+name    = "crypto_bench"
+harness = false
+
+[profile.release]
+opt-level     = 3
+lto           = "fat"
+codegen-units = 1
+panic         = "abort"
+strip         = "symbols"
+
+[profile.bench]
+opt-level     = 3
+lto           = "thin"
+
+[profile.embedded]
+inherits      = "release"
+panic         = "abort"
+opt-level     = "z"      # Size-optimized for MCU flash
+
+# Cargo fuzz sub-crate is in fuzz/ (cargo-fuzz managed)

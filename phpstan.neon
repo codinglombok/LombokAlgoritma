@@ -1,0 +1,12 @@
+parameters:
+  level: 9
+  paths:
+    - ports/php/src
+  excludePaths:
+    - ports/php/vendor
+  checkMissingIterableValueType: true
+  checkGenericClassInNonGenericObjectType: true
+  reportUnmatchedIgnoredErrors: true
+  treatPhpDocTypesAsCertain: false
+
+  ignoreErrors: []

@@ -1,0 +1,26 @@
+{
+  "algorithm": "fnv1a32",
+  "version": "0.1.0",
+  "vectors": [
+    {
+      "id": "fnv-001",
+      "input_utf8": "",
+      "expected": 2166136261
+    },
+    {
+      "id": "fnv-002",
+      "input_utf8": "hello",
+      "expected": 1335831723
+    },
+    {
+      "id": "fnv-003",
+      "input_utf8": "world",
+      "expected": 933488787
+    },
+    {
+      "id": "fnv-004",
+      "input_utf8": "LombokAlgoritma",
+      "expected": 1696070639
+    }
+  ]
+}

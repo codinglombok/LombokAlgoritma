@@ -1,0 +1,186 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  typescript:
+    name: TypeScript Node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: ["20", "22"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run build
+      - run: npm test -- --coverage
+      - uses: codecov/codecov-action@v4
+        if: matrix.node == '20'
+        with:
+          flags: typescript
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  rust:
+    name: Rust ${{ matrix.toolchain }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        toolchain: [stable, nightly]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --check
+        if: matrix.toolchain == 'stable'
+      - run: cargo clippy --all-features -- -D warnings
+      - run: cargo test --all-features
+
+  rust-wasm:
+    name: Rust WASM
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --target wasm32-unknown-unknown --no-default-features --features wasm
+
+  rust-embedded:
+    name: Rust Embedded no_std
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: thumbv7em-none-eabihf
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --target thumbv7em-none-eabihf --no-default-features --features no_std
+
+  python:
+    name: Python ${{ matrix.python }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pip install hatch
+      - run: hatch run dev:ruff check ports/python/
+      - run: hatch run dev:mypy ports/python/lombokalgoritma/
+      - run: hatch run dev:pytest
+
+  go:
+    name: Go ${{ matrix.go }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: ["1.21", "1.22"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go }}
+      - run: cd ports/go && go vet ./...
+      - run: cd ports/go && go test -race -count=1 ./...
+
+  php:
+    name: PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ["8.2", "8.3"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: xdebug
+      - run: composer install --prefer-dist --no-progress
+      - run: vendor/bin/phpstan analyse
+      - run: vendor/bin/phpunit
+
+  java:
+    name: Java ${{ matrix.java }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: ["17", "21"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: temurin
+          cache: maven
+      - run: mvn test -pl ports/java --no-transfer-progress
+
+  cpp:
+    name: C++20
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get install -y gcc-13 g++-13
+      - run: cd ports/cpp && cmake -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build && ctest --test-dir build --output-on-failure
+
+  dotnet:
+    name: .NET 8
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0"
+      - run: dotnet test ports/csharp --configuration Release
+
+  vectors:
+    name: Cross-Language Vector Validation
+    runs-on: ubuntu-latest
+    needs: [typescript, rust, python, go, php]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20", cache: npm }
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.21" }
+      - uses: shivammathur/setup-php@v2
+        with: { php-version: "8.2" }
+      - run: npm ci && pip install hatch && composer install --no-progress
+      - run: npm run vectors:generate
+      - run: bash scripts/validate_vectors.sh
+
+  ci-pass:
+    name: CI Pass
+    runs-on: ubuntu-latest
+    needs: [typescript, rust, python, go, php, java, cpp, dotnet, vectors]
+    if: always()
+    steps:
+      - run: |
+          echo "Results: ${{ toJson(needs.*.result) }}"
+          if echo "${{ toJson(needs.*.result) }}" | grep -q '"failure"'; then
+            echo "CI FAILED" && exit 1
+          fi
+          echo "All CI checks passed."
