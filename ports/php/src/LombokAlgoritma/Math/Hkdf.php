@@ -1,12 +1,26 @@
 <?php
+
+// LombokAlgoritma — PHP HKDF-SHA-256 (RFC 5869)
+// SPDX-License-Identifier: Apache-2.0 OR MIT — @codinglombok
+
 declare(strict_types=1);
+
 namespace LombokAlgoritma\Math;
-final class Hkdf {
-    public static function derive(string $ikm, int $len, ?string $salt=null, string $info=''): string {
-        $salt??=str_repeat("\x00",32);
-        $prk=hash_hmac('sha256',$ikm,$salt,true);
-        $okm='';$prev='';
-        for($i=1;strlen($okm)<$len;$i++){$block=$prev.$info.chr($i);$prev=hash_hmac('sha256',$block,$prk,true);$okm.=$prev;}
-        return substr($okm,0,$len);
+
+/**
+ * @deprecated 0.1.1 Moved to codinglombok/lombokencryptdecrypt; removed in 0.2.0.
+ */
+final class Hkdf
+{
+    /**
+     * @deprecated 0.1.1 Moved to codinglombok/lombokencryptdecrypt; removed in 0.2.0.
+     * @throws \InvalidArgumentException when $len is outside [0, 255·32]
+     */
+    public static function derive(string $ikm, int $len, ?string $salt = null, string $info = ''): string
+    {
+        if ($len < 0 || $len > 255 * 32) {
+            throw new \InvalidArgumentException('HKDF: length must be in [0, 8160]');
+        }
+        return hash_hkdf('sha256', $ikm, $len, $info, $salt ?? str_repeat("\x00", 32));
     }
 }

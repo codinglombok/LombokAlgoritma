@@ -78,3 +78,5 @@ Makefile.cmake
 *.tmp
 *.bak
 .DS_Store
+coverage.xml
+.coverage

@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+[package]
+name = "lombokalgoritma-capi"
+description = "C ABI for LombokAlgoritma (cdylib + staticlib); header in include/lombokalgoritma.h"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords = ["algorithm", "ffi", "c-api"]
+categories = ["algorithms", "external-ffi-bindings"]
+
+[lib]
+name = "lombokalgoritma_capi"
+crate-type = ["cdylib", "staticlib", "rlib"]
+
+[dependencies]
+lombokalgoritma = { path = "../lombokalgoritma", version = "0.1.1" }
+
+[lints]
+workspace = true

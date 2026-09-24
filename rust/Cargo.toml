@@ -1,0 +1,42 @@
+# LombokAlgoritma — Rust workspace (ADR-010: one workspace per language under <lang>/)
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+[workspace]
+resolver = "2"
+members = [
+    "lombokalgoritma",
+    "lombokalgoritma-capi",
+    "lombokalgoritma-wasm",
+]
+
+[workspace.package]
+version = "0.1.1"
+edition = "2021"
+rust-version = "1.75"
+authors = ["codinglombok <codinglombok@gmail.com>"]
+license = "Apache-2.0 OR MIT"
+repository = "https://github.com/codinglombok/LombokAlgoritma"
+homepage = "https://github.com/codinglombok/LombokAlgoritma"
+
+[workspace.lints.rust]
+unsafe_op_in_unsafe_fn = "deny"
+missing_docs = "warn"
+
+[workspace.lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+module_name_repetitions = "allow"
+must_use_candidate = "allow"
+cast_possible_truncation = "allow"
+many_single_char_names = "allow"
+similar_names = "allow"
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = "symbols"
+
+# Size-optimised profile for MCU flash: cargo build --profile embedded
+[profile.embedded]
+inherits = "release"
+opt-level = "z"

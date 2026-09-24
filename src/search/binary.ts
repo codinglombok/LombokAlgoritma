@@ -95,14 +95,15 @@ export function jumpSearch<T>(
   cmp: CompareFn<T> = defaultCompareFn as CompareFn<T>,
 ): number {
   const n = arr.length;
-  const step = Math.floor(Math.sqrt(n));
+  const step = Math.max(1, Math.floor(Math.sqrt(n)));
   let prev = 0;
   let curr = step;
   while (curr < n && cmp(arr[curr] as T, target) < 0) {
     prev = curr;
     curr += step;
   }
-  for (let i = prev; i < Math.min(curr, n); i++) {
+  // The block is [prev, curr] inclusive: arr[curr] may itself equal target.
+  for (let i = prev; i <= Math.min(curr, n - 1); i++) {
     if (cmp(arr[i] as T, target) === 0) return i;
   }
   return -1;

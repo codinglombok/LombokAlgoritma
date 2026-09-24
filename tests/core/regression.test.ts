@@ -264,3 +264,15 @@ describe('SegmentTree — lazy range-add scales by segment length', () => {
     expect(new SegmentTree([]).query(0, 0)).toBe(0);
   });
 });
+
+describe('jumpSearch — block end is inclusive', () => {
+  it('finds targets that sit exactly on a jump boundary', async () => {
+    const { jumpSearch } = await import('../../src/search/binary.js');
+    expect(jumpSearch([0, 1, 2, 3], 2)).toBe(2);
+    const arr = Array.from({ length: 1000 }, (_, i) => 2 * i);
+    for (let i = 0; i < arr.length; i++) expect(jumpSearch(arr, 2 * i)).toBe(i);
+    expect(jumpSearch(arr, 3)).toBe(-1);
+    expect(jumpSearch([], 1)).toBe(-1);
+    expect(jumpSearch([5], 5)).toBe(0);
+  });
+});
