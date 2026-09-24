@@ -3,31 +3,30 @@
 // O(n) build, O(log n) prefix sum and point update
 
 export class FenwickTree {
-  private tree: number[];
+  private readonly tree: number[];
   readonly n: number;
 
-  constructor(n: number);
-  constructor(arr: number[]);
+  /** @param arg size `n` (all zeros) or an initial array of values */
   constructor(arg: number | number[]) {
     if (typeof arg === 'number') {
       this.n = arg;
-      this.tree = new Array(arg + 1).fill(0);
+      this.tree = new Array<number>(arg + 1).fill(0);
     } else {
       this.n = arg.length;
-      this.tree = new Array(arg.length + 1).fill(0);
+      this.tree = new Array<number>(arg.length + 1).fill(0);
       for (let i = 0; i < arg.length; i++) this.update(i + 1, arg[i]!);
     }
   }
 
   /** Point update: add val to index i (1-based) */
   update(i: number, val: number): void {
-    for (; i <= this.n; i += i & (-i)) this.tree[i]! += val;
+    for (; i <= this.n; i += i & -i) this.tree[i]! += val;
   }
 
   /** Prefix sum [1, i] (1-based) */
   prefixSum(i: number): number {
     let s = 0;
-    for (; i > 0; i -= i & (-i)) s += this.tree[i]!;
+    for (; i > 0; i -= i & -i) s += this.tree[i]!;
     return s;
   }
 

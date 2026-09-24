@@ -19,7 +19,9 @@ export function mergesort<T>(
       const mid = Math.min(lo + width, n);
       const hi = Math.min(lo + 2 * width, n);
       // Merge a[lo..mid) and a[mid..hi) into tmp
-      let i = lo, j = mid, k = lo;
+      let i = lo;
+      let j = mid;
+      let k = lo;
       while (i < mid && j < hi) {
         if (compareFn(a[i] as T, a[j] as T) <= 0) tmp[k++] = a[i++] as T;
         else tmp[k++] = a[j++] as T;

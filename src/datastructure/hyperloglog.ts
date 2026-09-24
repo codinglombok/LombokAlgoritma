@@ -3,7 +3,23 @@
 // DIPAKAI: LombokSimHash (cardinality estimation for LSH buckets)
 // Estimates distinct count with ~2% error using O(m) space
 
+import { wrapMulU32 } from '../core/safe-int.js';
 import { fnv1a32 } from '../string/string-hash.js';
+
+/**
+ * MurmurHash3 fmix32 finalizer. FNV-1a alone has weak avalanche in its high bits
+ * for short, similar keys ("x1", "x2", …); since HLL takes the register index from
+ * the TOP b bits, raw FNV-1a clusters keys into few registers and biases the estimate.
+ */
+function fmix32(h: number): number {
+  let x = h >>> 0;
+  x ^= x >>> 16;
+  x = wrapMulU32(x, 0x85ebca6b);
+  x ^= x >>> 13;
+  x = wrapMulU32(x, 0xc2b2ae35);
+  x ^= x >>> 16;
+  return x >>> 0;
+}
 
 export class HyperLogLog {
   private registers: Uint8Array;
@@ -18,11 +34,12 @@ export class HyperLogLog {
   }
 
   add(item: string): void {
-    const h = fnv1a32(item);
-    const j = h >>> (32 - this.b);             // register index
-    const w = (h << this.b) >>> this.b;        // remaining bits
-    const rho = w === 0 ? 32 - this.b + 1 : Math.clz32(w) - this.b + 1;
-    if (rho > this.registers[j]!) this.registers[j] = rho;
+    const h = fmix32(fnv1a32(item));
+    const j = h >>> (32 - this.b); // register index = top b bits
+    const w = (h << this.b) >>> 0; // remaining (32 - b) bits, left-aligned
+    // rho = position of the leftmost 1-bit in w (1-based), capped at 32 - b + 1
+    const rho = w === 0 ? 32 - this.b + 1 : Math.clz32(w) + 1;
+    if (rho > (this.registers[j] ?? 0)) this.registers[j] = rho;
   }
 
   /** Estimate cardinality */
@@ -31,12 +48,18 @@ export class HyperLogLog {
     const alpha = m === 16 ? 0.673 : m === 32 ? 0.697 : m === 64 ? 0.709 : 0.7213 / (1 + 1.079 / m);
     let sum = 0;
     let zeros = 0;
-    for (const r of this.registers) { sum += Math.pow(2, -r); if (r === 0) zeros++; }
-    let estimate = alpha * m * m / sum;
-    // Small range correction
-    if (estimate <= 2.5 * m && zeros > 0) estimate = m * Math.log(m / zeros);
-    // Large range correction
-    else if (estimate > (1 / 30) * Math.pow(2, 32)) estimate = -Math.pow(2, 32) * Math.log(1 - estimate / Math.pow(2, 32));
+    for (const r of this.registers) {
+      sum += 2 ** -r;
+      if (r === 0) zeros++;
+    }
+    let estimate = (alpha * m * m) / sum;
+    // Small-range bias correction (linear counting), Flajolet et al. 2007 §4
+    if (estimate <= 2.5 * m) {
+      if (zeros > 0) estimate = m * Math.log(m / zeros);
+    } else if (estimate > 2 ** 32 / 30) {
+      // Large-range correction for 32-bit hash collisions
+      estimate = -(2 ** 32) * Math.log(1 - estimate / 2 ** 32);
+    }
     return Math.round(estimate);
   }
 
@@ -44,7 +67,8 @@ export class HyperLogLog {
   merge(other: HyperLogLog): HyperLogLog {
     if (this.b !== other.b) throw new Error('Cannot merge HyperLogLogs with different precision');
     const result = new HyperLogLog(this.b);
-    for (let i = 0; i < this.m; i++) result.registers[i] = Math.max(this.registers[i]!, other.registers[i]!);
+    for (let i = 0; i < this.m; i++)
+      result.registers[i] = Math.max(this.registers[i] ?? 0, other.registers[i] ?? 0);
     return result;
   }
 }

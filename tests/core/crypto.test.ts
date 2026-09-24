@@ -1,31 +1,26 @@
 // LombokAlgoritma — Crypto Primitives Tests (NIST CAVP vectors)
 // Apache-2.0 — @codinglombok
 
-import { describe, it, expect } from 'vitest';
-import { sha256hex, hmacSha256 } from '../../src/math/sha256.js';
+import { describe, expect, it } from 'vitest';
 import { hkdf } from '../../src/math/hkdf.js';
-import { modPow } from '../../src/math/modular.js';
-import { isPrime } from '../../src/math/miller-rabin.js';
+import { hmacSha256, sha256hex } from '../../src/math/sha256.js';
 
 // NIST FIPS 180-4 Test Vectors for SHA-256
 describe('SHA-256 NIST vectors', () => {
   it('vector 1: empty string', () => {
-    expect(sha256hex('')).toBe(
-      'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
-    );
+    expect(sha256hex('')).toBe('e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855');
   });
   it('vector 2: "abc"', () => {
+    // FIPS 180-4 / NIST CSRC example "SHA256.pdf", one-block message
     expect(sha256hex('abc')).toBe(
-      'ba7816bf8f01cfea414140de5dae2ec73b00361bbef0469db0714d02068e6e98'
-        .slice(0,62) + '98' // placeholder — will verify actual output
+      'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',
     );
     // Verify it's always 32 bytes / 64 hex chars
     expect(sha256hex('abc')).toHaveLength(64);
   });
   it('vector 3: 448-bit message', () => {
     const msg = 'abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq';
-    expect(sha256hex(msg)).toHaveLength(64);
-    expect(sha256hex(msg)).toMatch(/^[0-9a-f]{64}$/);
+    expect(sha256hex(msg)).toBe('248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1');
   });
   it('determinism: same input → same output', () => {
     expect(sha256hex('hello')).toBe(sha256hex('hello'));
@@ -36,10 +31,10 @@ describe('SHA-256 NIST vectors', () => {
     // XOR distance should be large (avalanche effect)
     let diffBits = 0;
     for (let i = 0; i < 64; i += 2) {
-      const b1 = parseInt(h1.slice(i, i+2), 16);
-      const b2 = parseInt(h2.slice(i, i+2), 16);
+      const b1 = Number.parseInt(h1.slice(i, i + 2), 16);
+      const b2 = Number.parseInt(h2.slice(i, i + 2), 16);
       const xor = b1 ^ b2;
-      diffBits += (xor.toString(2).match(/1/g)?.length ?? 0);
+      diffBits += xor.toString(2).match(/1/g)?.length ?? 0;
     }
     expect(diffBits).toBeGreaterThan(100); // > 100/256 bits differ
   });
@@ -49,8 +44,10 @@ describe('SHA-256 NIST vectors', () => {
 describe('HMAC-SHA-256', () => {
   it('produces 32 bytes', () => {
     const mac = hmacSha256(
-      new Uint8Array([0x0b,0x0b,0x0b,0x0b,0x0b,0x0b,0x0b,0x0b,0x0b,0x0b,
-                      0x0b,0x0b,0x0b,0x0b,0x0b,0x0b,0x0b,0x0b,0x0b,0x0b]),
+      new Uint8Array([
+        0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
+        0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
+      ]),
       new TextEncoder().encode('Hi There'),
     );
     expect(mac).toHaveLength(32);
@@ -71,10 +68,10 @@ describe('HMAC-SHA-256', () => {
 // RFC 5869 HKDF Test Vectors
 describe('HKDF-SHA-256', () => {
   it('test vector 1: basic (RFC 5869 §A.1)', () => {
-    const ikm  = new Uint8Array(22).fill(0x0b);
+    const ikm = new Uint8Array(22).fill(0x0b);
     const salt = Uint8Array.from({ length: 13 }, (_, i) => i);
     const info = Uint8Array.from({ length: 10 }, (_, i) => 0xf0 + i);
-    const okm  = hkdf(ikm, 42, { salt, info });
+    const okm = hkdf(ikm, 42, { salt, info });
     expect(okm).toHaveLength(42);
     // OKM must be deterministic
     expect(hkdf(ikm, 42, { salt, info })).toEqual(okm);

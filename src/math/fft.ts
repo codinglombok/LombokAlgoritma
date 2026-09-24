@@ -4,11 +4,17 @@
 
 import { nextPow2 } from '../core/bit.js';
 
-export interface Complex { re: number; im: number; }
+export interface Complex {
+  re: number;
+  im: number;
+}
 
 function bitReverse(n: number, bits: number): number {
   let rev = 0;
-  for (let i = 0; i < bits; i++) { rev = (rev << 1) | (n & 1); n >>= 1; }
+  for (let i = 0; i < bits; i++) {
+    rev = (rev << 1) | (n & 1);
+    n >>= 1;
+  }
   return rev;
 }
 
@@ -23,28 +29,43 @@ export function fft(arr: Complex[], inverse = false): void {
   }
   // Butterfly passes
   for (let len = 2; len <= n; len <<= 1) {
-    const ang = (inverse ? 1 : -1) * 2 * Math.PI / len;
-    const wRe = Math.cos(ang), wIm = Math.sin(ang);
+    const ang = ((inverse ? 1 : -1) * 2 * Math.PI) / len;
+    const wRe = Math.cos(ang);
+    const wIm = Math.sin(ang);
     for (let i = 0; i < n; i += len) {
-      let curRe = 1, curIm = 0;
+      let curRe = 1;
+      let curIm = 0;
       for (let j = 0; j < len / 2; j++) {
-        const uRe = (arr[i+j] as Complex).re, uIm = (arr[i+j] as Complex).im;
-        const vRe = (arr[i+j+len/2] as Complex).re * curRe - (arr[i+j+len/2] as Complex).im * curIm;
-        const vIm = (arr[i+j+len/2] as Complex).re * curIm + (arr[i+j+len/2] as Complex).im * curRe;
-        (arr[i+j] as Complex).re = uRe + vRe; (arr[i+j] as Complex).im = uIm + vIm;
-        (arr[i+j+len/2] as Complex).re = uRe - vRe; (arr[i+j+len/2] as Complex).im = uIm - vIm;
+        const uRe = (arr[i + j] as Complex).re;
+        const uIm = (arr[i + j] as Complex).im;
+        const vRe =
+          (arr[i + j + len / 2] as Complex).re * curRe -
+          (arr[i + j + len / 2] as Complex).im * curIm;
+        const vIm =
+          (arr[i + j + len / 2] as Complex).re * curIm +
+          (arr[i + j + len / 2] as Complex).im * curRe;
+        (arr[i + j] as Complex).re = uRe + vRe;
+        (arr[i + j] as Complex).im = uIm + vIm;
+        (arr[i + j + len / 2] as Complex).re = uRe - vRe;
+        (arr[i + j + len / 2] as Complex).im = uIm - vIm;
         const newCurRe = curRe * wRe - curIm * wIm;
-        curIm = curRe * wIm + curIm * wRe; curRe = newCurRe;
+        curIm = curRe * wIm + curIm * wRe;
+        curRe = newCurRe;
       }
     }
   }
-  if (inverse) { for (const c of arr) { c.re /= n; c.im /= n; } }
+  if (inverse) {
+    for (const c of arr) {
+      c.re /= n;
+      c.im /= n;
+    }
+  }
 }
 
 /** Pad real array to next power of 2 and convert to Complex[] */
 export function realToComplex(real: number[]): Complex[] {
   const n = nextPow2(real.length);
-  const out: Complex[] = new Array(n);
+  const out = new Array<Complex>(n);
   for (let i = 0; i < n; i++) out[i] = { re: real[i] ?? 0, im: 0 };
   return out;
 }

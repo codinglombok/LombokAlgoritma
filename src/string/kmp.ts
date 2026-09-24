@@ -8,7 +8,7 @@ function buildFailure(pattern: string): number[] {
   const f = new Array<number>(m).fill(0);
   let k = 0;
   for (let i = 1; i < m; i++) {
-    while (k > 0 && pattern[k] !== pattern[i]) k = f[k-1]!;
+    while (k > 0 && pattern[k] !== pattern[i]) k = f[k - 1]!;
     if (pattern[k] === pattern[i]) k++;
     f[i] = k;
   }
@@ -22,9 +22,12 @@ export function kmpSearch(text: string, pattern: string): number[] {
   const results: number[] = [];
   let k = 0;
   for (let i = 0; i < text.length; i++) {
-    while (k > 0 && pattern[k] !== text[i]) k = f[k-1]!;
+    while (k > 0 && pattern[k] !== text[i]) k = f[k - 1]!;
     if (pattern[k] === text[i]) k++;
-    if (k === pattern.length) { results.push(i - k + 1); k = f[k-1]!; }
+    if (k === pattern.length) {
+      results.push(i - k + 1);
+      k = f[k - 1]!;
+    }
   }
   return results;
 }

@@ -3,16 +3,16 @@
 // Complexity: O(n log n) avg, O(n²) worst (avoided via median-of-3 + random shuffle)
 // Space: O(log n) stack
 
+import { Xoshiro256pp } from '../core/rng.js';
 import type { CompareFn } from '../core/types.js';
 import { defaultCompareFn } from '../core/types.js';
-import { Xoshiro256pp } from '../core/rng.js';
 
 const rng = new Xoshiro256pp();
 
-function swap<T>(arr: T[], i: number, j: number): void {
+function swap(arr: unknown[], i: number, j: number): void {
   const tmp = arr[i];
-  arr[i] = arr[j] as T;
-  arr[j] = tmp as T;
+  arr[i] = arr[j];
+  arr[j] = tmp;
 }
 
 /** Median-of-three pivot selection */

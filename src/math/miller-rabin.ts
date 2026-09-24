@@ -5,9 +5,7 @@
 
 import { modPow } from './modular.js';
 
-const DETERMINISTIC_WITNESSES: bigint[] = [
-  2n,3n,5n,7n,11n,13n,17n,19n,23n,29n,31n,37n,
-];
+const DETERMINISTIC_WITNESSES: bigint[] = [2n, 3n, 5n, 7n, 11n, 13n, 17n, 19n, 23n, 29n, 31n, 37n];
 
 /** Deterministic Miller-Rabin for n < 3.3×10²⁴ */
 export function isPrime(n: bigint): boolean {
@@ -16,8 +14,12 @@ export function isPrime(n: bigint): boolean {
   if (n % 2n === 0n || n % 3n === 0n) return false;
 
   // Write n-1 as 2^r * d
-  let d = n - 1n, r = 0n;
-  while (d % 2n === 0n) { d /= 2n; r++; }
+  let d = n - 1n;
+  let r = 0n;
+  while (d % 2n === 0n) {
+    d /= 2n;
+    r++;
+  }
 
   for (const a of DETERMINISTIC_WITNESSES) {
     if (a >= n) continue;
@@ -25,8 +27,11 @@ export function isPrime(n: bigint): boolean {
     if (x === 1n || x === n - 1n) continue;
     let composite = true;
     for (let i = 0n; i < r - 1n; i++) {
-      x = x * x % n;
-      if (x === n - 1n) { composite = false; break; }
+      x = (x * x) % n;
+      if (x === n - 1n) {
+        composite = false;
+        break;
+      }
     }
     if (composite) return false;
   }

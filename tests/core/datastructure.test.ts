@@ -1,12 +1,12 @@
 // LombokAlgoritma — Data Structure Tests
 // Apache-2.0 — @codinglombok
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { BloomFilter } from '../../src/datastructure/bloom-filter.js';
-import { HyperLogLog } from '../../src/datastructure/hyperloglog.js';
 import { DisjointSet } from '../../src/datastructure/disjoint-set.js';
-import { SegmentTree } from '../../src/datastructure/segment-tree.js';
 import { FenwickTree } from '../../src/datastructure/fenwick-tree.js';
+import { HyperLogLog } from '../../src/datastructure/hyperloglog.js';
+import { SegmentTree } from '../../src/datastructure/segment-tree.js';
 
 describe('BloomFilter', () => {
   it('no false negatives', () => {
@@ -44,7 +44,8 @@ describe('DisjointSet', () => {
   });
   it('union connects', () => {
     const ds = new DisjointSet(5);
-    ds.union(0, 1); ds.union(1, 2);
+    ds.union(0, 1);
+    ds.union(1, 2);
     expect(ds.connected(0, 2)).toBe(true);
     expect(ds.connected(0, 3)).toBe(false);
     expect(ds.count).toBe(3);

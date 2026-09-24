@@ -3,7 +3,6 @@
 // Expected O(n^(1/4)) — fast for medium-sized composites
 
 import { gcd } from './gcd.js';
-import { modPow } from './modular.ts';
 import { isPrime } from './miller-rabin.js';
 
 function f(x: bigint, c: bigint, n: bigint): bigint {
@@ -13,7 +12,10 @@ function f(x: bigint, c: bigint, n: bigint): bigint {
 /** Pollard's rho — returns a non-trivial factor of n */
 export function pollardRho(n: bigint): bigint {
   if (n % 2n === 0n) return 2n;
-  let x = 2n, y = 2n, c = 1n, d = 1n;
+  let x = 2n;
+  let y = 2n;
+  let c = 1n;
+  let d = 1n;
   while (d === 1n) {
     x = f(x, c, n);
     y = f(f(y, c, n), c, n);
@@ -22,7 +24,9 @@ export function pollardRho(n: bigint): bigint {
   if (d !== n) return d;
   // Retry with different c
   c = 2n;
-  x = 2n; y = 2n; d = 1n;
+  x = 2n;
+  y = 2n;
+  d = 1n;
   while (d === 1n) {
     x = f(x, c, n);
     y = f(f(y, c, n), c, n);

@@ -29,13 +29,12 @@ function insertionSort<T>(arr: T[], lo: number, hi: number, cmp: CompareFn<T>): 
   }
 }
 
-function merge<T>(
-  arr: T[], lo: number, mid: number, hi: number,
-  tmp: T[], cmp: CompareFn<T>,
-): void {
+function merge<T>(arr: T[], lo: number, mid: number, hi: number, cmp: CompareFn<T>): void {
   const left = arr.slice(lo, mid + 1);
   const right = arr.slice(mid + 1, hi + 1);
-  let i = 0, j = 0, k = lo;
+  let i = 0;
+  let j = 0;
+  let k = lo;
   while (i < left.length && j < right.length) {
     if (cmp(left[i] as T, right[j] as T) <= 0) {
       arr[k++] = left[i++] as T;
@@ -45,7 +44,6 @@ function merge<T>(
   }
   while (i < left.length) arr[k++] = left[i++] as T;
   while (j < right.length) arr[k++] = right[j++] as T;
-  void tmp;
 }
 
 /**
@@ -62,7 +60,6 @@ export function timsort<T>(
   const n = a.length;
   if (n <= 1) return a;
   const minRun = minRunLength(n);
-  const tmp: T[] = [];
 
   // Sort individual runs using insertion sort
   for (let i = 0; i < n; i += minRun) {
@@ -73,7 +70,7 @@ export function timsort<T>(
     for (let lo = 0; lo < n; lo += 2 * size) {
       const mid = Math.min(lo + size - 1, n - 1);
       const hi = Math.min(lo + 2 * size - 1, n - 1);
-      if (mid < hi) merge(a, lo, mid, hi, tmp, compareFn);
+      if (mid < hi) merge(a, lo, mid, hi, compareFn);
     }
   }
   return a;

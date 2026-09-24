@@ -6,7 +6,7 @@ import type { CompareFn } from '../core/types.js';
 import { defaultCompareFn } from '../core/types.js';
 
 function siftDown<T>(arr: T[], root: number, end: number, cmp: CompareFn<T>): void {
-  while (true) {
+  for (;;) {
     let largest = root;
     const left = 2 * root + 1;
     const right = 2 * root + 2;

@@ -77,5 +77,5 @@ export function ctEqual(a: Uint8Array, b: Uint8Array): number {
   }
   // diff === 0 iff equal; -diff >>> 31 = 1 if diff!=0, 0 if diff=0
   // We want 1 if equal:
-  return (1 - ((-diff >>> 31) | ((diff) >>> 31))) >>> 0;
+  return (1 - ((-diff >>> 31) | (diff >>> 31))) >>> 0;
 }

@@ -10,7 +10,7 @@ interface ACNode {
 }
 
 export class AhoCorasick {
-  private nodes: ACNode[] = [{ children: new Map(), fail: 0, output: [] }];
+  private readonly nodes: ACNode[] = [{ children: new Map(), fail: 0, output: [] }];
 
   /** Add a pattern to the automaton (call before build()) */
   addPattern(pattern: string): void {
@@ -39,7 +39,10 @@ export class AhoCorasick {
         while (fail !== 0 && !this.nodes[fail]!.children.has(ch)) fail = this.nodes[fail]!.fail;
         const fv = this.nodes[fail]!.children.get(ch);
         this.nodes[v]!.fail = fv !== undefined && fv !== v ? fv : 0;
-        this.nodes[v]!.output = [...this.nodes[v]!.output, ...this.nodes[this.nodes[v]!.fail]!.output];
+        this.nodes[v]!.output = [
+          ...this.nodes[v]!.output,
+          ...this.nodes[this.nodes[v]!.fail]!.output,
+        ];
         queue.push(v);
       }
     }
