@@ -4,11 +4,15 @@
 
 import { wrapAddU32, wrapMulU32 } from '../core/safe-int.js';
 
-/** Polynomial rolling hash — Rabin fingerprint */
+/**
+ * Polynomial rolling hash h = Σ (code(sᵢ) − 96)·baseⁿ⁻¹⁻ⁱ mod `mod`, always in [0, mod).
+ * UTF-16 code units; v0.1.0 returned negative values for characters below 'a' (e.g. 'A', '0').
+ * `base·mod` must stay below 2^53.
+ */
 export function polynomialHash(s: string, base = 31, mod = 1_000_000_007): number {
   let h = 0;
   for (let i = 0; i < s.length; i++) {
-    h = (h * base + (s.charCodeAt(i) - 96)) % mod;
+    h = (((h * base + (s.charCodeAt(i) - 96)) % mod) + mod) % mod;
   }
   return h;
 }

@@ -1,18 +1,14 @@
 // LombokAlgoritma — WebAssembly bindings
 // SPDX-License-Identifier: Apache-2.0 OR MIT — @codinglombok
-//! `wasm-bindgen` exports of the `lombokalgoritma` crate. The core stays dependency-free.
-#![no_std]
-
-extern crate alloc;
-
-use alloc::vec::Vec;
+//! `wasm-bindgen` exports of the `lombokalgoritma` crate. The core stays dependency-free;
+//! this crate uses `std` (available on `wasm32-unknown-unknown`) for the allocator and panic handler.
 use lombokalgoritma as la;
 use wasm_bindgen::prelude::*;
 
 /// Crate version.
 #[wasm_bindgen(js_name = version)]
-pub fn version() -> alloc::string::String {
-    alloc::string::String::from(env!("CARGO_PKG_VERSION"))
+pub fn version() -> String {
+    String::from(env!("CARGO_PKG_VERSION"))
 }
 
 /// Stable sort of a `Uint32Array` copy; returns the sorted array.
@@ -58,8 +54,8 @@ mod tests {
     use super::*;
     #[test]
     fn native_smoke() {
-        assert_eq!(sort_u32(alloc::vec![3, 1, 2]), alloc::vec![1, 2, 3]);
-        let s = sort_f64(alloc::vec![2.0, f64::NAN, -0.0, 0.0, -1.0]);
+        assert_eq!(sort_u32(vec![3, 1, 2]), vec![1, 2, 3]);
+        let s = sort_f64(vec![2.0, f64::NAN, -0.0, 0.0, -1.0]);
         assert_eq!(s[0].to_bits(), (-1.0f64).to_bits());
         assert_eq!(s[1].to_bits(), (-0.0f64).to_bits());
         assert_eq!(s[2].to_bits(), 0.0f64.to_bits());

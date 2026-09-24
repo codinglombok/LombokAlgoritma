@@ -1,12 +1,12 @@
 package LombokAlgoritma::String;
 # LombokAlgoritma — Perl String Module
-# Apache-2.0 — @codinglombok
+# SPDX-License-Identifier: Apache-2.0 OR MIT — @codinglombok
 use strict; use warnings; use Exporter 'import';
 our @EXPORT_OK = qw(kmp_search levenshtein fnv1a32);
-our $VERSION = '0.1.0';
+our $VERSION = '0.1.1';
 
 sub kmp_search {
-    my($text,$pat)=@_; return [] unless $pat;
+    my($text,$pat)=@_; return [] unless defined $pat && length $pat;
     my $m=length($pat); my @f=(0)x$m; my $k=0;
     for my $i(1..$m-1){while($k>0&&substr($pat,$k,1)ne substr($pat,$i,1)){$k=$f[$k-1];}$k++ if substr($pat,$k,1)eq substr($pat,$i,1);$f[$i]=$k;}
     my @res; $k=0;

@@ -8,10 +8,15 @@ export function matCreate(rows: number, cols: number, fill = 0): Matrix {
   return Array.from({ length: rows }, () => new Array<number>(cols).fill(fill));
 }
 
+/**
+ * Naive O(n·m·k) product of an n×k and a k×m matrix.
+ * @throws RangeError when the inner dimensions differ
+ */
 export function matMul(A: Matrix, B: Matrix): Matrix {
-  const n = A.length,
-    m = B[0]!.length,
-    k = B.length;
+  const n = A.length;
+  const k = B.length;
+  const m = B[0]?.length ?? 0;
+  if (A.some((r) => r.length !== k)) throw new RangeError('matMul: inner dimensions differ');
   const C = matCreate(n, m);
   for (let i = 0; i < n; i++)
     for (let j = 0; j < m; j++) for (let l = 0; l < k; l++) C[i]![j]! += A[i]![l]! * B[l]![j]!;
@@ -73,7 +78,27 @@ function join(c11: Matrix, c12: Matrix, c21: Matrix, c22: Matrix, h: number): Ma
   return C;
 }
 
-/** Strassen matrix multiplication O(n^2.807) */
+/**
+ * Strassen matrix multiplication O(n^2.807) for square n×n matrices.
+ *
+ * Inputs whose size is not a power of two are zero-padded to the next power of two and the
+ * result is cropped (v0.1.0 split odd sizes > 64 into unequal quadrants and returned garbage).
+ *
+ * @throws RangeError when A or B is not n×n
+ */
 export function strassenMul(A: Matrix, B: Matrix): Matrix {
-  return strassen(A, B);
+  const n = A.length;
+  const square = (M: Matrix): boolean => M.length === n && M.every((r) => r.length === n);
+  if (!square(A) || !square(B)) throw new RangeError('strassenMul: A and B must both be n×n');
+  if (n === 0) return [];
+  let p = 1;
+  while (p < n) p <<= 1;
+  if (p === n) return strassen(A, B);
+  const pad = (M: Matrix): Matrix =>
+    Array.from({ length: p }, (_, i) =>
+      Array.from({ length: p }, (_, j) => (i < n && j < n ? (M[i]?.[j] ?? 0) : 0)),
+    );
+  return strassen(pad(A), pad(B))
+    .slice(0, n)
+    .map((r) => r.slice(0, n));
 }

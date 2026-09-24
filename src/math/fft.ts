@@ -21,6 +21,7 @@ function bitReverse(n: number, bits: number): number {
 /** Iterative Cooley-Tukey FFT. Modifies arr in-place. */
 export function fft(arr: Complex[], inverse = false): void {
   const n = arr.length;
+  if (n === 0 || (n & (n - 1)) !== 0) throw new RangeError('fft: length must be a power of two');
   const bits = Math.log2(n) | 0;
   // Bit-reversal permutation
   for (let i = 0; i < n; i++) {

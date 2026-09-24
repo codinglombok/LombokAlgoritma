@@ -1,6 +1,6 @@
 // LombokAlgoritma — C++ Sort Tests
 // Apache-2.0 — @codinglombok
-#define CATCH_CONFIG_MAIN
+
 #include <catch2/catch_test_macros.hpp>
 #include <lombokalgoritma/sort.hpp>
 #include <lombokalgoritma/search.hpp>

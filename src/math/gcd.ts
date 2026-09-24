@@ -36,7 +36,8 @@ export function gcdNum(a: number, b: number): number {
 /** Least common multiple */
 export function lcm(a: bigint, b: bigint): bigint {
   if (a === 0n || b === 0n) return 0n;
-  return (a / gcd(a, b)) * b;
+  const r = (a / gcd(a, b)) * b;
+  return r < 0n ? -r : r;
 }
 
 export function lcmNum(a: number, b: number): number {

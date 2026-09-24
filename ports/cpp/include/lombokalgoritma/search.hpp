@@ -1,5 +1,5 @@
 // LombokAlgoritma — C++20 Search Module (header-only)
-// Apache-2.0 — @codinglombok
+// SPDX-License-Identifier: Apache-2.0 OR MIT — @codinglombok
 #pragma once
 #include <vector>
 #include <optional>

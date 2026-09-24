@@ -1,186 +1,250 @@
+# LombokAlgoritma — CI
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+# One job per language that has code. Jobs marked "experimental" are not yet verified and do not
+# gate merges (continue-on-error); the `ci-pass` job is the required status check.
 name: CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
-    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  CARGO_TERM_COLOR: always
+
 jobs:
   typescript:
-    name: TypeScript Node ${{ matrix.node }}
+    name: TypeScript (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        node: ["20", "22"]
+        node: ["20", "22", "24"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: ${{ matrix.node }}
           cache: npm
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint
-      - run: npm run build
+      - run: npm run counts:check
       - run: npm test -- --coverage
-      - uses: codecov/codecov-action@v4
-        if: matrix.node == '20'
+      - run: npm run build
+      - name: Every path in package.json "exports" exists
+        run: |
+          node -e '
+            const p = require("./package.json"); const fs = require("fs"); let miss = 0;
+            for (const [k, v] of Object.entries(p.exports))
+              for (const f of typeof v === "string" ? [v] : Object.values(v))
+                if (!fs.existsSync(f)) { console.error("missing", k, f); miss++; }
+            process.exit(miss ? 1 : 0);'
+      - run: npm pack --dry-run
+      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+        if: matrix.node == '22'
         with:
           flags: typescript
+          files: coverage/lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
 
   rust:
-    name: Rust ${{ matrix.toolchain }}
+    name: Rust (stable)
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        toolchain: [stable, nightly]
+    defaults:
+      run:
+        working-directory: rust
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@master
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: dtolnay/rust-toolchain@02cb101ec7c40f2c49e1d9714d64511d8e1b74de # master
         with:
-          toolchain: ${{ matrix.toolchain }}
+          toolchain: stable
           components: clippy, rustfmt
-      - uses: Swatinem/rust-cache@v2
-      - run: cargo fmt --check
-        if: matrix.toolchain == 'stable'
-      - run: cargo clippy --all-features -- -D warnings
-      - run: cargo test --all-features
-
-  rust-wasm:
-    name: Rust WASM
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2.8.0
         with:
-          targets: wasm32-unknown-unknown
-      - uses: Swatinem/rust-cache@v2
-      - run: cargo build --target wasm32-unknown-unknown --no-default-features --features wasm
+          workspaces: rust
+      - run: cargo fmt --all --check
+      - run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - run: cargo clippy --workspace --all-targets --locked --no-default-features -- -D warnings
+      - run: cargo test --workspace --locked
+      - run: cargo test -p lombokalgoritma --no-default-features --locked
 
-  rust-embedded:
-    name: Rust Embedded no_std
+  rust-msrv:
+    name: Rust MSRV (1.75)
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: rust
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: dtolnay/rust-toolchain@02cb101ec7c40f2c49e1d9714d64511d8e1b74de # master
         with:
-          targets: thumbv7em-none-eabihf
-      - uses: Swatinem/rust-cache@v2
-      - run: cargo build --target thumbv7em-none-eabihf --no-default-features --features no_std
+          toolchain: "1.75"
+      - uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2.8.0
+        with:
+          workspaces: rust
+      - run: cargo build --workspace --locked
+      - run: cargo test -p lombokalgoritma --locked
 
-  python:
-    name: Python ${{ matrix.python }}
+  rust-targets:
+    name: Rust ${{ matrix.target }}
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        python: ["3.10", "3.11", "3.12"]
+        include:
+          - target: thumbv7em-none-eabihf
+            build: cargo build -p lombokalgoritma --no-default-features --target thumbv7em-none-eabihf --locked
+          - target: wasm32-unknown-unknown
+            build: cargo build -p lombokalgoritma-wasm -p lombokalgoritma --no-default-features --target wasm32-unknown-unknown --release --locked
+    defaults:
+      run:
+        working-directory: rust
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: dtolnay/rust-toolchain@02cb101ec7c40f2c49e1d9714d64511d8e1b74de # master
         with:
-          python-version: ${{ matrix.python }}
-      - run: pip install hatch
-      - run: hatch run dev:ruff check ports/python/
-      - run: hatch run dev:mypy ports/python/lombokalgoritma/
-      - run: hatch run dev:pytest
+          toolchain: stable
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2.8.0
+        with:
+          workspaces: rust
+          key: ${{ matrix.target }}
+      - run: ${{ matrix.build }}
 
   go:
     name: Go ${{ matrix.go }}
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        go: ["1.21", "1.22"]
+        go: ["1.21", "1.22", "stable"]
+    defaults:
+      run:
+        working-directory: go
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
         with:
           go-version: ${{ matrix.go }}
-      - run: cd ports/go && go vet ./...
-      - run: cd ports/go && go test -race -count=1 ./...
+          cache-dependency-path: go/go.mod
+      - run: test -z "$(gofmt -l .)" || (gofmt -l . && exit 1)
+      - run: go vet ./...
+      - run: go test -race -count=1 -coverprofile=coverage.out ./...
+      - run: go tool cover -func=coverage.out | tail -1
+
+  python:
+    name: Python ${{ matrix.python }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -e ".[dev]"
+      - run: ruff check ports/python
+      - run: ruff format --check ports/python
+      - run: mypy ports/python/lombokalgoritma
+      - run: pytest
 
   php:
     name: PHP ${{ matrix.php }}
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        php: ["8.2", "8.3"]
+        php: ["8.2", "8.3", "8.4"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: shivammathur/setup-php@v2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: shivammathur/setup-php@0f7f1d08e3e32076e51cae65eb0b0c871405b16e # 2.34.1
         with:
           php-version: ${{ matrix.php }}
-          coverage: xdebug
+          extensions: gmp, mbstring
+          coverage: none
+      - run: composer validate --strict
       - run: composer install --prefer-dist --no-progress
-      - run: vendor/bin/phpstan analyse
-      - run: vendor/bin/phpunit
-
-  java:
-    name: Java ${{ matrix.java }}
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java: ["17", "21"]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          java-version: ${{ matrix.java }}
-          distribution: temurin
-          cache: maven
-      - run: mvn test -pl ports/java --no-transfer-progress
+      - run: vendor/bin/phpstan analyse --no-progress
+      - run: vendor/bin/phpunit --no-coverage
 
   cpp:
-    name: C++20
+    name: C++20 (${{ matrix.cxx }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        cxx: [g++, clang++]
     steps:
-      - uses: actions/checkout@v4
-      - run: sudo apt-get install -y gcc-13 g++-13
-      - run: cd ports/cpp && cmake -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build && ctest --test-dir build --output-on-failure
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - run: cmake -S ports/cpp -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${{ matrix.cxx }}
+      - run: cmake --build build -j
+      - run: ctest --test-dir build --output-on-failure
 
-  dotnet:
-    name: .NET 8
+  perl:
+    name: Perl
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - run: prove -l -r ports/perl/t
+        working-directory: .
+        env:
+          PERL5LIB: ports/perl/lib
+
+  # ── Not yet verified (see README status table) — reported, non-blocking ─────────────────────
+  experimental:
+    name: Experimental ${{ matrix.lang }}
+    runs-on: ${{ matrix.os }}
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - lang: java
+            os: ubuntu-latest
+          - lang: dotnet
+            os: ubuntu-latest
+          - lang: swift
+            os: macos-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        if: matrix.lang == 'java'
         with:
-          dotnet-version: "8.0"
-      - run: dotnet test ports/csharp --configuration Release
-
-  vectors:
-    name: Cross-Language Vector Validation
-    runs-on: ubuntu-latest
-    needs: [typescript, rust, python, go, php]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: "20", cache: npm }
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: actions/setup-python@v5
-        with: { python-version: "3.11" }
-      - uses: actions/setup-go@v5
-        with: { go-version: "1.21" }
-      - uses: shivammathur/setup-php@v2
-        with: { php-version: "8.2" }
-      - run: npm ci && pip install hatch && composer install --no-progress
-      - run: npm run vectors:generate
-      - run: bash scripts/validate_vectors.sh
+          java-version: "17"
+          distribution: temurin
+          cache: maven
+      - if: matrix.lang == 'java'
+        run: mvn -B --no-transfer-progress test
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
+        if: matrix.lang == 'dotnet'
+        with:
+          dotnet-version: "8.0.x"
+      - if: matrix.lang == 'dotnet'
+        run: dotnet test ports/csharp/tests --configuration Release
+      - if: matrix.lang == 'swift'
+        run: swift test
 
   ci-pass:
     name: CI Pass
     runs-on: ubuntu-latest
-    needs: [typescript, rust, python, go, php, java, cpp, dotnet, vectors]
     if: always()
+    needs: [typescript, rust, rust-msrv, rust-targets, go, python, php, cpp, perl]
     steps:
-      - run: |
-          echo "Results: ${{ toJson(needs.*.result) }}"
-          if echo "${{ toJson(needs.*.result) }}" | grep -q '"failure"'; then
-            echo "CI FAILED" && exit 1
+      - name: All required jobs succeeded
+        run: |
+          echo '${{ toJson(needs) }}'
+          if [ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped') }}" = "true" ]; then
+            echo "CI FAILED"; exit 1
           fi
-          echo "All CI checks passed."

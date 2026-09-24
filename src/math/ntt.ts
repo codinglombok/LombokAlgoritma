@@ -12,6 +12,8 @@ const DEFAULT_G = 3n;
 /** Iterative NTT (forward) */
 export function ntt(a: bigint[], mod = DEFAULT_MOD, g = DEFAULT_G): bigint[] {
   const n = a.length;
+  if (n === 0 || (n & (n - 1)) !== 0) throw new RangeError('ntt: length must be a power of two');
+  if ((mod - 1n) % BigInt(n) !== 0n) throw new RangeError('ntt: length must divide mod − 1');
   const result = [...a];
   // Bit-reversal permutation
   for (let i = 1, j = 0; i < n; i++) {

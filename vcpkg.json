@@ -1,14 +1,16 @@
 {
   "name": "lombokalgoritma",
-  "version": "0.1.0",
-  "description": "Comprehensive algorithm library — 160+ algorithms, C++20 header-only, zero deps",
+  "version": "0.1.1",
+  "description": "LombokAlgoritma \u2014 C++20 header-only port (sort, search, string, vector ops), zero deps",
   "homepage": "https://github.com/codinglombok/LombokAlgoritma",
-  "license": "Apache-2.0",
+  "license": "Apache-2.0 OR MIT",
   "supports": "!uwp",
   "features": {
     "tests": {
       "description": "Build and run tests",
-      "dependencies": ["catch2"]
+      "dependencies": [
+        "catch2"
+      ]
     }
   },
   "dependencies": []

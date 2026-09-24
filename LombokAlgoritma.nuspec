@@ -2,12 +2,12 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>CodingLombok.LombokAlgoritma</id>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
     <title>LombokAlgoritma</title>
     <authors>codinglombok</authors>
     <owners>codinglombok</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <license type="expression">Apache-2.0</license>
+    <license type="expression">Apache-2.0 OR MIT</license>
     <projectUrl>https://github.com/codinglombok/LombokAlgoritma</projectUrl>
     <description>Comprehensive algorithm library — 160+ algorithms, 12 language ports,
 zero external dependencies. C# / .NET 8+ port of LombokAlgoritma.
