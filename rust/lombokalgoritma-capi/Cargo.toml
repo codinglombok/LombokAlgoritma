@@ -17,7 +17,7 @@ name = "lombokalgoritma_capi"
 crate-type = ["cdylib", "staticlib", "rlib"]
 
 [dependencies]
-lombokalgoritma = { path = "../lombokalgoritma", version = "0.1.1" }
+lombokalgoritma = { path = "../lombokalgoritma", version = "0.1.1" } # x-release-please-version
 
 [lints]
 workspace = true

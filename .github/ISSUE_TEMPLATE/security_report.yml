@@ -11,7 +11,7 @@ body:
     id: component
     attributes:
       label: Affected Component
-      placeholder: "e.g. src/math/sha256.ts, ports/rust/src/math/"
+      placeholder: "e.g. src/string/string-hash.ts, rust/lombokalgoritma/src/string/"
     validations:
       required: true
   - type: dropdown

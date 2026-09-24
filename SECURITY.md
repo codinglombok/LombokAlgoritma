@@ -15,7 +15,7 @@ Email: security@codinglombok.dev
 GPG: https://codinglombok.dev/gpg-key.asc (fingerprint: published on GitHub)
 
 ### What to include
-- Affected component (e.g. `src/math/sha256.ts`, `ports/rust/src/math/`)
+- Affected component (e.g. `src/sort/timsort.ts`, `rust/lombokalgoritma/src/string/`)
 - Vulnerability type (timing side-channel, integer overflow, incorrect output, etc.)
 - Steps to reproduce
 - Proof of concept (if available)

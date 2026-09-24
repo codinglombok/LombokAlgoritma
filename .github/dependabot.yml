@@ -2,64 +2,25 @@ version: 2
 updates:
   - package-ecosystem: npm
     directory: "/"
-    schedule:
-      interval: weekly
-      day: monday
-      time: "06:00"
-    assignees: [codinglombok]
-    reviewers: [codinglombok]
+    schedule: { interval: weekly, day: monday }
     labels: ["dependencies", "javascript"]
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-patch"]
-
   - package-ecosystem: cargo
-    directory: "/"
-    schedule:
-      interval: weekly
-      day: monday
-    assignees: [codinglombok]
+    directory: "/rust"
+    schedule: { interval: weekly, day: monday }
     labels: ["dependencies", "rust"]
-
-  - package-ecosystem: pip
-    directory: "/ports/python"
-    schedule:
-      interval: weekly
-      day: monday
-    assignees: [codinglombok]
-    labels: ["dependencies", "python"]
-
   - package-ecosystem: gomod
-    directory: "/ports/go"
-    schedule:
-      interval: weekly
-    assignees: [codinglombok]
+    directory: "/go"
+    schedule: { interval: weekly }
     labels: ["dependencies", "go"]
-
+  - package-ecosystem: pip
+    directory: "/"
+    schedule: { interval: weekly }
+    labels: ["dependencies", "python"]
   - package-ecosystem: composer
     directory: "/"
-    schedule:
-      interval: weekly
-    assignees: [codinglombok]
+    schedule: { interval: weekly }
     labels: ["dependencies", "php"]
-
-  - package-ecosystem: maven
-    directory: "/ports/java"
-    schedule:
-      interval: weekly
-    assignees: [codinglombok]
-    labels: ["dependencies", "java"]
-
-  - package-ecosystem: nuget
-    directory: "/ports/csharp"
-    schedule:
-      interval: weekly
-    assignees: [codinglombok]
-    labels: ["dependencies", "dotnet"]
-
   - package-ecosystem: github-actions
     directory: "/"
-    schedule:
-      interval: weekly
-    assignees: [codinglombok]
+    schedule: { interval: weekly }
     labels: ["dependencies", "github-actions"]

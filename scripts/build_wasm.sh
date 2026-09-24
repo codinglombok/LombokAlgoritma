@@ -1,27 +1,11 @@
 #!/usr/bin/env bash
-# LombokAlgoritma — WASM Bundle Builder
-# Apache-2.0 — @codinglombok
+# LombokAlgoritma — WebAssembly bundle (rust/lombokalgoritma-wasm)
+# SPDX-License-Identifier: Apache-2.0 OR MIT — @codinglombok
+# Requires: rustup target add wasm32-unknown-unknown; wasm-pack (cargo install wasm-pack)
 set -euo pipefail
-
-echo "[WASM] Checking wasm-pack..."
-if ! command -v wasm-pack &>/dev/null; then
-  echo "[WASM] Installing wasm-pack..."
-  curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-fi
-
-echo "[WASM] Building wasm32 target..."
-wasm-pack build ports/rust/wasm \
-  --target bundler \
-  --out-dir ../../dist/wasm \
-  --release \
-  -- --features wasm
-
-echo "[WASM] Building WASM SIMD variant..."
+cd "$(dirname "$0")/../rust"
+command -v wasm-pack >/dev/null || { echo "wasm-pack not found: cargo install wasm-pack" >&2; exit 1; }
+wasm-pack build lombokalgoritma-wasm --target bundler --release --out-dir ../../dist/wasm
 RUSTFLAGS="-C target-feature=+simd128" \
-wasm-pack build ports/rust/wasm \
-  --target bundler \
-  --out-dir ../../dist/wasm-simd \
-  --release \
-  -- --features "wasm,simd"
-
-echo "[WASM] Done. Output: dist/wasm/ and dist/wasm-simd/"
+  wasm-pack build lombokalgoritma-wasm --target bundler --release --out-dir ../../dist/wasm-simd
+echo "[WASM] dist/wasm and dist/wasm-simd written"

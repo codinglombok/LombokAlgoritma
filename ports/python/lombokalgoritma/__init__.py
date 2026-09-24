@@ -9,7 +9,7 @@ from .search import binary_search, lower_bound
 from .sort import mergesort, quicksort, timsort
 from .string import jaro_winkler, kmp_search, levenshtein
 
-__version__ = "0.1.1"
+__version__ = "0.1.1"  # x-release-please-version
 __all__ = [
     "binary_search",
     "cosine_similarity",

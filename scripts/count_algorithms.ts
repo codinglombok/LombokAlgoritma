@@ -160,7 +160,7 @@ function walk(dir: string, ext: string[]): string[] {
 function symbols(files: string[], pattern: RegExp, exclude?: RegExp): Set<string> {
   const found = new Set<string>();
   for (const f of files) {
-    if (exclude?.test(f)) continue;
+    if (exclude?.test(f) === true) continue;
     const text = readFileSync(f, 'utf8');
     for (const m of text.matchAll(pattern)) if (m[1] !== undefined) found.add(m[1]);
   }
@@ -206,8 +206,12 @@ export function buildReport(): Report {
   const ports: PortReport[] = PORTS.map((p) => {
     const files = p.src.flatMap((s) => walk(s, p.ext));
     const api = symbols(files, p.pattern, p.exclude).size;
-    const testFiles = p.tests.flatMap((t) => walk(t, [...p.ext, '.t', '.test.ts', '.cpp', '.kt', '.swift']));
-    const testCount = testFiles.filter((f) => /test|spec|[/\\]t[/\\]/i.test(f) || f.endsWith('.rs')).length;
+    const testFiles = p.tests.flatMap((t) =>
+      walk(t, [...p.ext, '.t', '.test.ts', '.cpp', '.kt', '.swift']),
+    );
+    const testCount = testFiles.filter(
+      (f) => /test|spec|[/\\]t[/\\]/i.test(f) || f.endsWith('.rs'),
+    ).length;
     const hasRunner = testFiles.some((f) => p.vectorMarker.test(readFileSync(f, 'utf8')));
     const status: PortReport['status'] = hasRunner ? '✅' : testCount > 0 ? '🟡' : '—';
     return { lang: p.lang, api, tests: testCount, status };
@@ -225,9 +229,11 @@ export function buildReport(): Report {
 export function toMarkdown(r: Report): string {
   const lines: string[] = [];
   lines.push(
-    `**${r.algorithms} algorithms** in the TypeScript reference across ${Object.keys(r.modules).length} modules, ` +
-      `**${r.languages} languages** with code` +
-      (r.deprecatedCrypto > 0 ? ` (+${r.deprecatedCrypto} deprecated crypto functions, removed in v0.2.0).` : '.'),
+    `**${r.algorithms} algorithms** in the TypeScript reference across ${Object.keys(r.modules).length} modules, **${r.languages} languages** with code${
+      r.deprecatedCrypto > 0
+        ? ` (+${r.deprecatedCrypto} deprecated crypto functions, removed in v0.2.0).`
+        : '.'
+    }`,
   );
   lines.push('');
   lines.push('| Module | # | Exported algorithms / structures |', '|---|---:|---|');
@@ -264,7 +270,9 @@ function main(): void {
   const next = `${readme.slice(0, a + START.length)}\n${md}\n${readme.slice(b)}`;
   if (args.has('--check')) {
     if (next !== readme) {
-      process.stderr.write('README.md counts are stale — run: npx tsx scripts/count_algorithms.ts --write\n');
+      process.stderr.write(
+        'README.md counts are stale — run: npx tsx scripts/count_algorithms.ts --write\n',
+      );
       process.exit(1);
     }
     return;

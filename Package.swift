@@ -1,4 +1,5 @@
 // swift-tools-version: 5.9
+// SPDX-License-Identifier: Apache-2.0 OR MIT
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -46,10 +47,7 @@ let package = Package(
         .testTarget(
             name: "LombokAlgoritmaTests",
             dependencies: ["LombokAlgoritma"],
-            path: "ports/swift/Tests",
-            resources: [
-                .copy("../../tests/vectors")
-            ]
+            path: "ports/swift/Tests"
         ),
     ],
     swiftLanguageVersions: [.v5]

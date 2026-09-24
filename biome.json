@@ -39,8 +39,8 @@
     }
   },
   "files": {
-    "include": ["src/**/*.ts", "tests/**/*.ts"],
-    "ignore": ["dist/**", "node_modules/**", "ports/**"]
+    "include": ["src/**/*.ts", "tests/**/*.ts", "scripts/**/*.ts", "tsup.config.ts"],
+    "ignore": ["dist/**", "node_modules/**", "ports/**", "rust/**", "go/**", "coverage/**"]
   },
   "javascript": {
     "formatter": {
