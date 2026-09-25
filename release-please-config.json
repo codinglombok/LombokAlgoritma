@@ -38,7 +38,7 @@
   ],
   "packages": {
     ".": {
-      "release-type": "node",
+      "release-type": "simple",
       "package-name": "lombokalgoritma",
       "component": "lombokalgoritma",
       "include-component-in-tag": false,
@@ -49,23 +49,38 @@
       ],
       "extra-files": [
         {
+          "type": "json",
+          "path": "typescript/package.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
+          "path": "typescript/package-lock.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
+          "path": "typescript/package-lock.json",
+          "jsonpath": "$.packages[''].version"
+        },
+        {
+          "type": "json",
+          "path": "typescript/jsr.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
+          "path": "typescript/deno.json",
+          "jsonpath": "$.version"
+        },
+        {
           "type": "toml",
-          "path": "pyproject.toml",
+          "path": "python/pyproject.toml",
           "jsonpath": "$.project.version"
         },
         {
           "type": "generic",
-          "path": "ports/python/lombokalgoritma/__init__.py"
-        },
-        {
-          "type": "json",
-          "path": "ports/ts/jsr.json",
-          "jsonpath": "$.version"
-        },
-        {
-          "type": "json",
-          "path": "ports/ts/deno.json",
-          "jsonpath": "$.version"
+          "path": "python/lombokalgoritma/__init__.py"
         }
       ]
     },

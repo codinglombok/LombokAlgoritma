@@ -1,76 +1,51 @@
 # Contributing to LombokAlgoritma
 
-Thank you for contributing to LombokAlgoritma! This document explains how.
+Thank you for contributing! The normative contract is
+[`docs/SPEC_LombokAlgoritma_v0.2.0.md`](docs/SPEC_LombokAlgoritma_v0.2.0.md): every conformant port
+(TypeScript, Rust, Python, Go, PHP) must produce byte-identical output for the shared vectors.
 
-## Development Setup
-
-```bash
-git clone https://github.com/codinglombok/LombokAlgoritma
-cd LombokAlgoritma
-npm install          # TypeScript deps
-cargo build          # Rust build
-pip install hatch    # Python build tool
-```
-
-## Quick Commands
+## Development setup
 
 ```bash
-make test          # Run all tests (all languages)
-make test-ts       # TypeScript only
-make test-rust     # Rust only
-make lint          # Lint all languages
-make vectors       # Generate + validate test vectors
-make bench         # Benchmarks
+git clone https://github.com/codinglombok/LombokAlgoritma && cd LombokAlgoritma
+(cd typescript && npm ci)
+(cd rust && cargo build --workspace)
+pip install -e "./python[dev]"
+composer install
 ```
 
-## Adding a New Algorithm
+## Quick commands
 
-1. **Add TypeScript implementation** in `src/{module}/{algorithm}.ts`
-2. **Add test vectors** in `tests/vectors/{module}/{algorithm}.json`
-3. **Add unit tests** in `tests/core/{module}.test.ts`
-4. **Port to at least Rust and Python** (other ports welcome)
-5. **Export from module index** `src/{module}/index.ts`
-6. **Update CHANGELOG.md** under `[Unreleased]`
-7. **Submit PR** with the checklist filled out
-
-## Algorithm Requirements
-
-- **Correctness first** — validate against NIST/Wikipedia reference implementations
-- **Edge cases** — empty input, single element, max values, Unicode, negatives
-- **No external dependencies** — stdlib only in all ports
-- **Complexity documented** — O(?) in JSDoc comment
-- **Reference cited** — Wikipedia/RFC/paper link in comment
-
-## Cryptographic Algorithms
-
-Extra requirements for anything in `src/math/` (crypto):
-- Constant-time: no `if (secret === 0)` style branches
-- Bitwise masking: use `ctSelect32()` from `src/core/bit.ts`
-- Add dudect timing test in `tests/security/constant-time/`
-- NIST Known Answer Test (KAT) vectors required
-
-## Test Vector Format
-
-```json
-{
-  "algorithm": "your-algorithm",
-  "version": "0.1.0",
-  "vectors": [
-    { "id": "tv-001", "description": "empty input", "input": {}, "expected_output": {} }
-  ]
-}
+```bash
+make test                 # all languages
+make lint                 # all linters
+make vectors              # regenerate vectors/lombokalgoritma-vectors-v1.json + SHA256SUMS
+make vectors-crosscheck   # run the five runners and cmp their output
+(cd typescript && npm run counts)   # refresh the README status table
 ```
 
-All 12 ports MUST produce identical output for every vector.
+## Adding an algorithm
 
-## Code Style
+1. TypeScript reference in `typescript/src/<module>/<algorithm>.ts` (graph/geometry: one file per algorithm) + unit tests.
+2. Normative definition in the SPEC: parameters, evaluation order for floats, tie-breaking, error codes (§2).
+3. Dispatch entry in `typescript/tests/vectors/dispatch.ts` and cases in `typescript/scripts/generate-vectors.ts`;
+   `make vectors` and update the vector SHA-256 in the SPEC header.
+4. Implement it in Rust, Python, Go and PHP, including their runner dispatch tables; `make vectors-crosscheck`.
+5. CHANGELOG entry; Conventional Commit PR title.
 
-TypeScript: Biome (auto-format) + ESLint strict
-Rust: rustfmt + clippy (deny warnings)
-Python: ruff
-Go: gofmt + golangci-lint
-PHP: PHP_CodeSniffer PSR-12 + PHPStan level 9
+## Requirements
+
+- Correctness first, validated against published references (papers, RFCs, reference implementations).
+- Edge cases: empty input, single element, maximum values, Unicode (code points), negatives.
+- Zero runtime dependencies in every port; errors use the canonical codes of SPEC §2.
+- Complexity and references in the doc comment.
+- No cryptography: it belongs to [LombokEncryptDecrypt](https://github.com/codinglombok/LombokEncryptDecrypt) (ADR-016).
+
+## Code style
+
+TypeScript: Biome + ESLint strict · Rust: rustfmt + clippy `-D warnings` · Python: ruff + mypy `--strict` ·
+Go: gofmt + go vet · PHP: PSR-12 (phpcs) + PHPStan level 9.
 
 ## License
 
-By contributing, you agree your contributions are licensed under Apache-2.0.
+Contributions are dual-licensed under Apache-2.0 OR MIT, without additional terms.

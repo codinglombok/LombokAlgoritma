@@ -6,7 +6,7 @@ body:
     id: algorithm
     attributes:
       label: Algorithm / Module
-      placeholder: "e.g. sort/timsort, graph/leiden, math/sha256"
+      placeholder: "e.g. sort/timsort, graph/dijkstra, string/hash/xxhash64"
     validations:
       required: true
   - type: input

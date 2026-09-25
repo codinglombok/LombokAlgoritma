@@ -6,10 +6,11 @@ members = [
     "lombokalgoritma",
     "lombokalgoritma-capi",
     "lombokalgoritma-wasm",
+    "lombokalgoritma-vectors",
 ]
 
 [workspace.package]
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
 rust-version = "1.75"
 authors = ["codinglombok <codinglombok@gmail.com>"]
@@ -28,6 +29,14 @@ must_use_candidate = "allow"
 cast_possible_truncation = "allow"
 many_single_char_names = "allow"
 similar_names = "allow"
+# Algorithm code: casts are range-checked by construction, exact float comparisons are
+# normative (SPEC §0.2), and algorithm names (HyperLogLog, PageRank, …) are not code items.
+cast_precision_loss = "allow"
+cast_sign_loss = "allow"
+cast_possible_wrap = "allow"
+float_cmp = "allow"
+doc_markdown = "allow"
+if_not_else = "allow"
 
 [profile.release]
 opt-level = 3

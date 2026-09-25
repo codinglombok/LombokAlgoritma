@@ -1,176 +1,88 @@
-//! Non-cryptographic string/byte hashes (bit-identical to the TypeScript reference).
+// LombokAlgoritma — string algorithms (SPEC §11) and non-cryptographic hashes (SPEC §12)
+// SPDX-License-Identifier: Apache-2.0 OR MIT — @codinglombok
+//! String algorithms over Unicode **code points** (lengths and offsets are code-point counts),
+//! plus the byte hashes of [`hash`] (re-exported here).
+mod aho_corasick;
+pub mod hash;
+mod jaro;
+mod kmp;
+mod levenshtein;
 
-/// FNV-1a, 32-bit.
-pub fn fnv1a32(data: &[u8]) -> u32 {
-    let mut h: u32 = 0x811c_9dc5;
-    for &b in data {
-        h ^= u32::from(b);
-        h = h.wrapping_mul(0x0100_0193);
-    }
-    h
-}
-
-/// FNV-1a, 64-bit.
-pub fn fnv1a64(data: &[u8]) -> u64 {
-    let mut h: u64 = 0xcbf2_9ce4_8422_2325;
-    for &b in data {
-        h ^= u64::from(b);
-        h = h.wrapping_mul(0x0000_0100_0000_01b3);
-    }
-    h
-}
-
-/// `MurmurHash3_x86_32`.
-pub fn murmur3_32(data: &[u8], seed: u32) -> u32 {
-    const C1: u32 = 0xcc9e_2d51;
-    const C2: u32 = 0x1b87_3593;
-    let mut h = seed;
-    let mut chunks = data.chunks_exact(4);
-    for c in &mut chunks {
-        let mut k = u32::from_le_bytes([c[0], c[1], c[2], c[3]]);
-        k = k.wrapping_mul(C1).rotate_left(15).wrapping_mul(C2);
-        h ^= k;
-        h = h.rotate_left(13).wrapping_mul(5).wrapping_add(0xe654_6b64);
-    }
-    let tail = chunks.remainder();
-    if !tail.is_empty() {
-        let mut k = 0u32;
-        for (i, &b) in tail.iter().enumerate() {
-            k |= u32::from(b) << (8 * i);
-        }
-        h ^= k.wrapping_mul(C1).rotate_left(15).wrapping_mul(C2);
-    }
-    h ^= data.len() as u32;
-    fmix32(h)
-}
-
-/// `MurmurHash3` 32-bit finalizer.
-pub fn fmix32(mut h: u32) -> u32 {
-    h ^= h >> 16;
-    h = h.wrapping_mul(0x85eb_ca6b);
-    h ^= h >> 13;
-    h = h.wrapping_mul(0xc2b2_ae35);
-    h ^ (h >> 16)
-}
-
-const P32_1: u32 = 0x9e37_79b1;
-const P32_2: u32 = 0x85eb_ca77;
-const P32_3: u32 = 0xc2b2_ae3d;
-const P32_4: u32 = 0x27d4_eb2f;
-const P32_5: u32 = 0x1656_67b1;
-
-fn xxh32_round(acc: u32, lane: u32) -> u32 {
-    acc.wrapping_add(lane.wrapping_mul(P32_2))
-        .rotate_left(13)
-        .wrapping_mul(P32_1)
-}
-
-fn le32(b: &[u8]) -> u32 {
-    u32::from_le_bytes([b[0], b[1], b[2], b[3]])
-}
-
-/// xxHash32 (XXH32) per the reference specification.
-pub fn xxhash32(data: &[u8], seed: u32) -> u32 {
-    let n = data.len();
-    let mut i = 0;
-    let mut h = if n >= 16 {
-        let mut v = [
-            seed.wrapping_add(P32_1).wrapping_add(P32_2),
-            seed.wrapping_add(P32_2),
-            seed,
-            seed.wrapping_sub(P32_1),
-        ];
-        while i + 16 <= n {
-            for (lane, acc) in v.iter_mut().enumerate() {
-                *acc = xxh32_round(*acc, le32(&data[i + 4 * lane..]));
-            }
-            i += 16;
-        }
-        v[0].rotate_left(1)
-            .wrapping_add(v[1].rotate_left(7))
-            .wrapping_add(v[2].rotate_left(12))
-            .wrapping_add(v[3].rotate_left(18))
-    } else {
-        seed.wrapping_add(P32_5)
-    };
-    h = h.wrapping_add(n as u32);
-    while i + 4 <= n {
-        h = h
-            .wrapping_add(le32(&data[i..]).wrapping_mul(P32_3))
-            .rotate_left(17)
-            .wrapping_mul(P32_4);
-        i += 4;
-    }
-    while i < n {
-        h = h
-            .wrapping_add(u32::from(data[i]).wrapping_mul(P32_5))
-            .rotate_left(11)
-            .wrapping_mul(P32_1);
-        i += 1;
-    }
-    h ^= h >> 15;
-    h = h.wrapping_mul(P32_2);
-    h ^= h >> 13;
-    h = h.wrapping_mul(P32_3);
-    h ^ (h >> 16)
-}
+pub use aho_corasick::{AhoCorasick, AhoCorasickMatch};
+pub use hash::{
+    fmix32, fnv1a32, fnv1a64, murmur3_32, polynomial_hash, siphash24, xxhash32, xxhash64,
+};
+pub use jaro::{jaro, jaro_winkler};
+pub use kmp::{kmp_find, kmp_search};
+pub use levenshtein::{damerau_levenshtein, levenshtein};
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    const INPUTS: [&[u8]; 6] = [
-        b"",
-        b"a",
-        b"abc",
-        b"hello",
-        b"abcdefghijklmnop",
-        b"The quick brown fox jumps over the lazy dog",
-    ];
+    use alloc::string::String;
+    use alloc::vec;
+    use alloc::vec::Vec;
 
     #[test]
-    fn xxhash32_reference() {
-        let s0 = [
-            0x02cc_5d05,
-            0x550d_7456,
-            0x32d1_53ff,
-            0xfb00_77f9,
-            0x9d2d_8b62,
-            0xe85e_a4de,
-        ];
-        let s1 = [
-            0x0b2c_b792,
-            0xf514_706f,
-            0xaa3d_a8ff,
-            0xfcff_fba9,
-            0x7cfb_9556,
-            0x234f_8471,
-        ];
-        for (i, inp) in INPUTS.iter().enumerate() {
-            assert_eq!(xxhash32(inp, 0), s0[i]);
-            assert_eq!(xxhash32(inp, 1), s1[i]);
-        }
+    fn kmp() {
+        assert_eq!(kmp_search("abcabc", "abc"), [0, 3]);
+        assert_eq!(kmp_search("aaaa", "aa"), [0, 1, 2]);
+        assert_eq!(kmp_search("abc", ""), Vec::<usize>::new());
+        assert_eq!(kmp_search("😀a😀a", "😀a"), [0, 2]);
+        assert_eq!(kmp_search("abababab", "abab"), [0, 2, 4]);
+        assert_eq!(kmp_find("xyz", "z"), Some(2));
+        assert_eq!(kmp_find("xyz", "q"), None);
     }
 
     #[test]
-    fn murmur3_reference() {
-        let s0 = [
-            0,
-            0x3c25_69b2,
-            0xb3dd_93fa,
-            0x248b_fa47,
-            0xe762_91ed,
-            0x2e4f_f723,
-        ];
-        for (i, inp) in INPUTS.iter().enumerate() {
-            assert_eq!(murmur3_32(inp, 0), s0[i]);
-        }
-        assert_eq!(murmur3_32(b"hello", 42), 0xe2db_d2e1);
+    fn edit_distances() {
+        assert_eq!(levenshtein("", ""), 0);
+        assert_eq!(levenshtein("a", ""), 1);
+        assert_eq!(levenshtein("", "abc"), 3);
+        assert_eq!(levenshtein("kitten", "sitting"), 3);
+        assert_eq!(levenshtein("sitting", "kitten"), 3);
+        assert_eq!(levenshtein("😀", "😁"), 1);
+        assert_eq!(damerau_levenshtein("", "ab"), 2);
+        assert_eq!(damerau_levenshtein("ab", ""), 2);
+        assert_eq!(damerau_levenshtein("ca", "abc"), 2);
+        assert_eq!(damerau_levenshtein("ab", "ba"), 1);
+        assert_eq!(damerau_levenshtein("kitten", "sitting"), 3);
     }
 
     #[test]
-    fn fnv_reference() {
-        assert_eq!(fnv1a32(b""), 0x811c_9dc5);
-        assert_eq!(fnv1a32(b"a"), 0xe40c_292c);
-        assert_eq!(fnv1a64(b"a"), 0xaf63_dc4c_8601_ec8c);
+    fn jaro_family() {
+        assert_eq!(jaro("", ""), 1.0);
+        assert_eq!(jaro("a", ""), 0.0);
+        assert_eq!(jaro("a", "b"), 0.0);
+        assert_eq!(jaro("abc", "xyz"), 0.0);
+        assert!((jaro("MARTHA", "MARHTA") - 0.944_444_444_444_444_5).abs() < 1e-15);
+        assert!((jaro_winkler("MARTHA", "MARHTA", 0.1) - 0.961_111_111_111_111_1).abs() < 1e-15);
+        assert_eq!(jaro_winkler("same", "same", 0.1), 1.0);
+    }
+
+    #[test]
+    fn aho() {
+        let mut ac = AhoCorasick::new();
+        for p in ["he", "she", "his", "hers", ""] {
+            ac.add_pattern(p);
+        }
+        let got: Vec<(String, usize)> = ac
+            .search("ahishers")
+            .into_iter()
+            .map(|m| (m.pattern, m.index))
+            .collect();
+        let want = vec![("his", 1), ("she", 3), ("he", 4), ("hers", 4)];
+        assert_eq!(
+            got,
+            want.into_iter()
+                .map(|(p, i)| (String::from(p), i))
+                .collect::<Vec<_>>()
+        );
+        let mut ac = AhoCorasick::with_patterns(["b😀", "😀"]);
+        let got: Vec<usize> = ac.search("ab😀😀").iter().map(|m| m.index).collect();
+        assert_eq!(got, [1, 2, 3]);
+        ac.add_pattern("a");
+        assert_eq!(ac.search("a").len(), 1);
+        assert!(AhoCorasick::default().search("abc").is_empty());
     }
 }

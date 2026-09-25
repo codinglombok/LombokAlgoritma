@@ -1,0 +1,22 @@
+{
+  "name": "@codinglombok/lombokalgoritma",
+  "version": "0.2.0",
+  "exports": "./src/index.ts",
+  "tasks": {
+    "test": "deno test --allow-read tests/",
+    "check": "deno check src/"
+  },
+  "fmt": {
+    "lineWidth": 100,
+    "indentWidth": 2,
+    "singleQuote": false
+  },
+  "lint": {
+    "rules": {
+      "tags": [
+        "recommended"
+      ]
+    }
+  },
+  "license": "Apache-2.0 OR MIT"
+}

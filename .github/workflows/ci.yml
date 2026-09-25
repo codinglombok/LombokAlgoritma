@@ -1,7 +1,9 @@
 # LombokAlgoritma — CI
 # SPDX-License-Identifier: Apache-2.0 OR MIT
-# One job per language that has code. Jobs marked "experimental" are not yet verified and do not
-# gate merges (continue-on-error); the `ci-pass` job is the required status check.
+# One job per language folder (typescript/ rust/ go/ python/ php/ cpp/ perl/ …). The five conformant
+# ports each upload their vector-runner output; `vectors-crosscheck` requires all five to be
+# byte-identical (SPEC_LombokAlgoritma_v0.2.0 §1). Jobs marked "experimental" are not yet verified
+# and do not gate merges; `ci-pass` is the required status check.
 name: CI
 
 on:
@@ -19,8 +21,17 @@ concurrency:
 
 env:
   CARGO_TERM_COLOR: always
+  VECTORS: vectors/lombokalgoritma-vectors-v1.json
 
 jobs:
+  vectors-file:
+    name: Vector file integrity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: SHA-256 matches vectors/SHA256SUMS (cited by SPEC)
+        run: cd vectors && sha256sum -c SHA256SUMS
+
   typescript:
     name: TypeScript (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
@@ -28,16 +39,21 @@ jobs:
       fail-fast: false
       matrix:
         node: ["20", "22", "24"]
+    defaults:
+      run:
+        working-directory: typescript
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: ${{ matrix.node }}
           cache: npm
+          cache-dependency-path: typescript/package-lock.json
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint
       - run: npm run counts:check
+      - run: npm run vectors:check
       - run: npm test -- --coverage
       - run: npm run build
       - name: Every path in package.json "exports" exists
@@ -49,11 +65,17 @@ jobs:
                 if (!fs.existsSync(f)) { console.error("missing", k, f); miss++; }
             process.exit(miss ? 1 : 0);'
       - run: npm pack --dry-run
+      - run: mkdir -p ../out && npm run vectors:run
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: matrix.node == '22'
+        with:
+          name: vectors-typescript
+          path: out/typescript.txt
       - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         if: matrix.node == '22'
         with:
           flags: typescript
-          files: coverage/lcov.info
+          files: typescript/coverage/lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
 
@@ -68,15 +90,25 @@ jobs:
       - uses: dtolnay/rust-toolchain@02cb101ec7c40f2c49e1d9714d64511d8e1b74de # master
         with:
           toolchain: stable
-          components: clippy, rustfmt
+          components: clippy, rustfmt, llvm-tools-preview
       - uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2.8.0
         with:
           workspaces: rust
+      - uses: taiki-e/install-action@c99cc51b309eee71a866715cfa08c922f11cf898 # v2.56.19
+        with:
+          tool: cargo-llvm-cov
       - run: cargo fmt --all --check
       - run: cargo clippy --workspace --all-targets -- -D warnings
-      - run: cargo clippy --workspace --all-targets --no-default-features -- -D warnings
+      - run: cargo clippy -p lombokalgoritma --no-default-features -- -D warnings
       - run: cargo test --workspace
       - run: cargo test -p lombokalgoritma --no-default-features
+      - name: Coverage ≥ 90 % (lines)
+        run: cargo llvm-cov -p lombokalgoritma -p lombokalgoritma-vectors --fail-under-lines 90 --summary-only
+      - run: mkdir -p ../out && cargo run -q -p lombokalgoritma-vectors -- ../$VECTORS > ../out/rust.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: vectors-rust
+          path: out/rust.txt
 
   rust-msrv:
     name: Rust MSRV (1.75)
@@ -92,7 +124,7 @@ jobs:
       - uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2.8.0
         with:
           workspaces: rust
-      - run: cargo build --workspace
+      - run: cargo build -p lombokalgoritma -p lombokalgoritma-capi -p lombokalgoritma-vectors
       - run: cargo test -p lombokalgoritma
 
   rust-targets:
@@ -103,7 +135,7 @@ jobs:
       matrix:
         include:
           - target: thumbv7em-none-eabihf
-            build: cargo build -p lombokalgoritma --no-default-features --target thumbv7em-none-eabihf
+            build: cargo build -p lombokalgoritma --no-default-features --target thumbv7em-none-eabihf --release
           - target: wasm32-unknown-unknown
             build: cargo build -p lombokalgoritma-wasm -p lombokalgoritma --no-default-features --target wasm32-unknown-unknown --release
     defaults:
@@ -139,8 +171,18 @@ jobs:
           cache-dependency-path: go/go.mod
       - run: test -z "$(gofmt -l .)" || (gofmt -l . && exit 1)
       - run: go vet ./...
-      - run: go test -race -count=1 -coverprofile=coverage.out ./...
-      - run: go tool cover -func=coverage.out | tail -1
+      - run: go test -race -count=1 -coverprofile=coverage.out .
+      - name: Coverage ≥ 90 % (library package)
+        run: |
+          pct=$(go tool cover -func=coverage.out | awk '/^total:/ {sub("%","",$3); print $3}')
+          echo "coverage $pct %"; awk -v p="$pct" 'BEGIN { exit (p >= 90 ? 0 : 1) }'
+      - run: go test -race -count=1 ./...
+      - run: mkdir -p ../out && go run ./cmd/vectors ../$VECTORS > ../out/go.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: matrix.go == 'stable'
+        with:
+          name: vectors-go
+          path: out/go.txt
 
   python:
     name: Python ${{ matrix.python }}
@@ -154,11 +196,17 @@ jobs:
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: ${{ matrix.python }}
-      - run: python -m pip install -e ".[dev]"
-      - run: ruff check ports/python
-      - run: ruff format --check ports/python
-      - run: mypy ports/python/lombokalgoritma
-      - run: pytest
+      - run: python -m pip install -e "./python[dev]"
+      - run: ruff check python
+      - run: ruff format --check python
+      - run: mypy --strict python/lombokalgoritma
+      - run: cd python && pytest
+      - run: mkdir -p out && python -m lombokalgoritma._vectors $VECTORS > out/python.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: matrix.python == '3.12'
+        with:
+          name: vectors-python
+          path: out/python.txt
 
   php:
     name: PHP ${{ matrix.php }}
@@ -173,11 +221,37 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: gmp, mbstring
-          coverage: none
+          coverage: pcov
       - run: composer validate --strict
       - run: composer install --prefer-dist --no-progress
-      - run: vendor/bin/phpstan analyse --no-progress
-      - run: vendor/bin/phpunit --no-coverage
+      - run: vendor/bin/phpcs --standard=PSR12 php/src php/tests php/bin
+      - run: vendor/bin/phpstan analyse -c php/phpstan.neon --no-progress
+      - run: vendor/bin/phpunit -c php/phpunit.xml --coverage-text --only-summary-for-coverage-text | tee phpunit.txt
+      - name: Coverage ≥ 90 % (lines)
+        run: |
+          pct=$(grep -m1 -E '^\s*Lines:' phpunit.txt | grep -oE '[0-9]+\.[0-9]+' | head -1)
+          echo "coverage $pct %"; awk -v p="$pct" 'BEGIN { exit (p >= 90 ? 0 : 1) }'
+      - run: mkdir -p out && php php/bin/vectors.php $VECTORS > out/php.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: matrix.php == '8.3'
+        with:
+          name: vectors-php
+          path: out/php.txt
+
+  vectors-crosscheck:
+    name: Vectors byte-identical in 5 ports
+    runs-on: ubuntu-latest
+    needs: [typescript, rust, go, python, php]
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          pattern: vectors-*
+          merge-multiple: true
+          path: out
+      - name: cmp every port against the TypeScript reference
+        run: |
+          cd out && sha256sum ./*.txt
+          for p in rust go python php; do cmp typescript.txt "$p.txt"; done
 
   cpp:
     name: C++20 (${{ matrix.cxx }})
@@ -188,7 +262,7 @@ jobs:
         cxx: [g++, clang++]
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - run: cmake -S ports/cpp -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${{ matrix.cxx }}
+      - run: cmake -S cpp -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${{ matrix.cxx }}
       - run: cmake --build build -j
       - run: ctest --test-dir build --output-on-failure
 
@@ -197,7 +271,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - run: prove -I ports/perl/lib -r ports/perl/t
+      - run: prove -I perl/lib -r perl/t
 
   # ── Not yet verified (see README status table) — reported, non-blocking ─────────────────────
   experimental:
@@ -223,13 +297,13 @@ jobs:
           distribution: temurin
           cache: maven
       - if: matrix.lang == 'java'
-        run: mvn -B --no-transfer-progress test
+        run: mvn -B --no-transfer-progress -f java/pom.xml test
       - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
         if: matrix.lang == 'dotnet'
         with:
           dotnet-version: "8.0.x"
       - if: matrix.lang == 'dotnet'
-        run: dotnet test ports/csharp/tests --configuration Release
+        run: dotnet test csharp/tests --configuration Release
       - if: matrix.lang == 'swift'
         run: swift test
 
@@ -237,7 +311,7 @@ jobs:
     name: CI Pass
     runs-on: ubuntu-latest
     if: always()
-    needs: [typescript, rust, rust-msrv, rust-targets, go, python, php, cpp, perl]
+    needs: [vectors-file, typescript, rust, rust-msrv, rust-targets, go, python, php, vectors-crosscheck, cpp, perl]
     steps:
       - name: All required jobs succeeded
         run: |
