@@ -6,9 +6,15 @@ from typing import Any, Protocol, TypeVar
 
 
 class Comparable(Protocol):
-    """Anything ordered by ``<`` (all algorithms here only use ``<`` and ``==``)."""
+    """Anything ordered by comparison operators used by the algorithms."""
 
     def __lt__(self, other: Any, /) -> bool: ...
+
+    def __le__(self, other: Any, /) -> bool: ...
+
+    def __ge__(self, other: Any, /) -> bool: ...
+
+    def __eq__(self, other: Any, /) -> bool: ...
 
 
 CT = TypeVar("CT", bound=Comparable)
