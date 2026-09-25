@@ -15,7 +15,7 @@ namespace LombokAlgoritma\Core;
  */
 final class MinHeap
 {
-    /** @var list<T> */
+    /** @var array<int, T> */
     private array $items = [];
 
     /** @var \Closure(T, T): bool */
@@ -64,7 +64,6 @@ final class MinHeap
         array_pop($this->items);
         $n--;
         if ($n > 0) {
-            /** @var list<T> $a */
             $a = $this->items;
             $a[0] = $last;
             $i = 0;

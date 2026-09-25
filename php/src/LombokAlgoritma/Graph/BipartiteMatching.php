@@ -40,14 +40,14 @@ final class BipartiteMatching
                 }
             }
         }
-        return ['size' => $size, 'matchLeft' => $matchLeft, 'matchRight' => $matchRight];
+        return ['size' => $size, 'matchLeft' => array_values($matchLeft), 'matchRight' => array_values($matchRight)];
     }
 
     /**
-     * @param list<list<int>> $adj
-     * @param list<int> $matchLeft
-     * @param list<int> $matchRight
-     * @param list<int|float> $dist
+     * @param array<int, list<int>> $adj
+     * @param array<int, int> $matchLeft
+     * @param array<int, int> $matchRight
+     * @param array<int, int|float> $dist
      */
     private static function bfs(int $nLeft, array $adj, array $matchLeft, array $matchRight, array &$dist): bool
     {
@@ -79,11 +79,11 @@ final class BipartiteMatching
     /**
      * Iterative DFS along the layered graph.
      *
-     * @param list<list<int>> $adj
-     * @param list<int> $matchLeft
-     * @param list<int> $matchRight
-     * @param list<int|float> $dist
-     * @param list<int> $it
+     * @param array<int, list<int>> $adj
+     * @param array<int, int> $matchLeft
+     * @param array<int, int> $matchRight
+     * @param array<int, int|float> $dist
+     * @param array<int, int> $it
      */
     private static function augment(
         int $root,

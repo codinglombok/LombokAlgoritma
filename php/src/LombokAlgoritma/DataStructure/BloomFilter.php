@@ -18,7 +18,7 @@ use LombokAlgoritma\Hash\Murmur3;
  */
 final class BloomFilter
 {
-    /** @var list<int> */
+    /** @var array<int, int> */
     private array $bits;
 
     private function __construct(private readonly int $m, private readonly int $k)

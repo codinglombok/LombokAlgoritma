@@ -20,7 +20,7 @@ final class HyperLogLog
 {
     private readonly int $b;
     private readonly int $m;
-    /** @var list<int> */
+    /** @var array<int, int> */
     private array $registers;
 
     /** @param int $b precision, clamped to [4, 16] */

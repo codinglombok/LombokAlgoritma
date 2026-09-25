@@ -44,6 +44,12 @@ Migration notes: [UPGRADE.md](UPGRADE.md).
   Rust `lombokalgoritma-vectors` runner crate; Go `cmd/vectors`; Python `lombokalgoritma._vectors`;
   PHP `php/bin/vectors.php`.
 
+### Build
+- Dev tooling (from Dependabot on `main`): vitest 5 + @vitest/coverage-v8 5, ESLint 10 + @eslint/js 10,
+  @types/node 26; TypeScript stays on 5.9 (typescript-eslint 8 does not support TypeScript 7 — Dependabot
+  ignores TS majors); PHPStan `^1.11 || ^2.0` (PHP port clean at level 9 on both); actions setup-node 7,
+  setup-python 7, setup-dotnet 6, codecov 7.1.1, CodeQL 4.38.1 (init and analyze aligned).
+
 ### Fixed
 - TS Aho–Corasick never matched patterns with astral characters (trie by code point, scan by UTF-16 unit);
   `build()` was not idempotent.

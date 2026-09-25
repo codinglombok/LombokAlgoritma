@@ -12,9 +12,9 @@ use LombokAlgoritma\AlgoException;
 /** Union by rank + full path compression; `find` returns the (normative) root. */
 final class DisjointSet
 {
-    /** @var list<int> */
+    /** @var array<int, int> */
     private array $parent;
-    /** @var list<int> */
+    /** @var array<int, int> */
     private array $rank;
     private int $count;
 

@@ -41,6 +41,10 @@ final class FloydWarshall
                 }
             }
         }
-        return $dist;
+        $out = [];
+        foreach ($dist as $row) {
+            $out[] = array_values($row);
+        }
+        return $out;
     }
 }

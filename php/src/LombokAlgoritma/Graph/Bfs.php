@@ -34,6 +34,6 @@ final class Bfs
                 }
             }
         }
-        return $dist;
+        return array_values($dist);
     }
 }

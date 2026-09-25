@@ -44,6 +44,6 @@ final class Dijkstra
                 }
             }
         }
-        return $dist;
+        return array_values($dist);
     }
 }

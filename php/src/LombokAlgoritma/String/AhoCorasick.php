@@ -16,7 +16,7 @@ final class AhoCorasick
 {
     /** @var list<array<string, int>> children per node, keyed by "c" . code point */
     private array $children = [[]];
-    /** @var list<int> */
+    /** @var array<int, int> */
     private array $fail = [0];
     /** @var list<list<string>> patterns ending exactly at the node */
     private array $own = [[]];

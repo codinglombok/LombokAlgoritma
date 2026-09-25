@@ -69,11 +69,11 @@ final class Dinic
     /**
      * One augmenting path along the level graph (iterative DFS); 0 when blocked.
      *
-     * @param list<list<int>> $head
+     * @param array<int, list<int>> $head
      * @param list<int> $to
-     * @param list<int|float> $cap
-     * @param list<int> $level
-     * @param list<int> $it
+     * @param array<int, int|float> $cap
+     * @param array<int, int> $level
+     * @param array<int, int> $it
      */
     private static function augment(
         int $source,

@@ -79,7 +79,10 @@ final class KMeans
                     $next[] = $centroids[$c];
                     continue;
                 }
-                $nc = array_map(static fn (int|float $v): int|float => $v / $cnt, $row);
+                $nc = [];
+                foreach ($row as $v) {
+                    $nc[] = $v / $cnt;
+                }
                 $shift = sqrt(self::sqDist($centroids[$c], $nc));
                 if ($shift > $maxShift) {
                     $maxShift = $shift;
@@ -95,7 +98,12 @@ final class KMeans
         foreach ($points as $i => $p) {
             $inertia += self::sqDist($p, $centroids[$labels[$i]]);
         }
-        return ['centroids' => $centroids, 'labels' => $labels, 'iterations' => $iter, 'inertia' => $inertia];
+        return [
+            'centroids' => $centroids,
+            'labels' => array_values($labels),
+            'iterations' => $iter,
+            'inertia' => $inertia,
+        ];
     }
 
     /**

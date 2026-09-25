@@ -63,7 +63,7 @@ final class Ntt
                 }
             }
         }
-        return $r;
+        return array_values($r);
     }
 
     /**

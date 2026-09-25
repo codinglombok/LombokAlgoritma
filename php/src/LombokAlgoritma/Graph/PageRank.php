@@ -55,6 +55,6 @@ final class PageRank
             }
             $rank = $next;
         }
-        return array_map(static fn (int|float $x): float => (float) $x, $rank);
+        return array_values(array_map(static fn (int|float $x): float => (float) $x, $rank));
     }
 }

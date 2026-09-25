@@ -47,7 +47,7 @@ final class Sort
                 }
             }
         }
-        return $a;
+        return array_values($a);
     }
 
     private static function defaultCmp(mixed $x, mixed $y): int
@@ -67,7 +67,7 @@ final class Sort
 
     /**
      * @template T
-     * @param list<T> $a
+     * @param array<int, T> $a
      * @param callable(T, T): int $cmp
      */
     private static function insertion(array &$a, int $lo, int $hi, callable $cmp): void
@@ -87,7 +87,7 @@ final class Sort
      * Merge the sorted runs a[lo..mid] and a[mid+1..hi] (stable: left wins ties).
      *
      * @template T
-     * @param list<T> $a
+     * @param array<int, T> $a
      * @param callable(T, T): int $cmp
      */
     private static function merge(array &$a, int $lo, int $mid, int $hi, callable $cmp): void
@@ -154,7 +154,7 @@ final class Sort
             }
             $a = $tmp;
         }
-        return $a;
+        return array_values($a);
     }
 
     /**
@@ -174,12 +174,12 @@ final class Sort
         if (count($a) > 1) {
             self::quicksortInner($a, 0, count($a) - 1, $cmp);
         }
-        return $a;
+        return array_values($a);
     }
 
     /**
      * @template T
-     * @param list<T> $a
+     * @param array<int, T> $a
      * @param callable(T, T): int $cmp
      */
     private static function quicksortInner(array &$a, int $lo, int $hi, callable $cmp): void
@@ -202,7 +202,7 @@ final class Sort
 
     /**
      * @template T
-     * @param list<T> $a
+     * @param array<int, T> $a
      * @param callable(T, T): int $cmp
      */
     private static function partition(array &$a, int $lo, int $hi, callable $cmp): int
@@ -250,12 +250,12 @@ final class Sort
             [$a[0], $a[$end]] = [$a[$end], $a[0]];
             self::siftDown($a, 0, $end, $cmp);
         }
-        return $a;
+        return array_values($a);
     }
 
     /**
      * @template T
-     * @param list<T> $a
+     * @param array<int, T> $a
      * @param callable(T, T): int $cmp
      */
     private static function siftDown(array &$a, int $root, int $end, callable $cmp): void
@@ -318,7 +318,7 @@ final class Sort
         foreach ($a as $i => $v) {
             $a[$i] = $v - $shift;
         }
-        return $a;
+        return array_values($a);
     }
 
     /**

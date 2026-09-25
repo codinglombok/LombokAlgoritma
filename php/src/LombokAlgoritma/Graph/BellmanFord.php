@@ -45,6 +45,6 @@ final class BellmanFord
                 break;
             }
         }
-        return ['distances' => $dist, 'hasNegativeCycle' => $neg];
+        return ['distances' => array_values($dist), 'hasNegativeCycle' => $neg];
     }
 }
