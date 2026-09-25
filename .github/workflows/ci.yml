@@ -49,7 +49,7 @@ jobs:
                 if (!fs.existsSync(f)) { console.error("missing", k, f); miss++; }
             process.exit(miss ? 1 : 0);'
       - run: npm pack --dry-run
-      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+      - uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         if: matrix.node == '22'
         with:
           flags: typescript
