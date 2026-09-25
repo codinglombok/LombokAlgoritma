@@ -66,7 +66,7 @@ jobs:
             process.exit(miss ? 1 : 0);'
       - run: npm pack --dry-run
       - run: mkdir -p ../out && npm run vectors:run
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: matrix.node == '22'
         with:
           name: vectors-typescript
@@ -105,7 +105,7 @@ jobs:
       - name: Coverage ≥ 90 % (lines)
         run: cargo llvm-cov -p lombokalgoritma -p lombokalgoritma-vectors --fail-under-lines 90 --summary-only
       - run: mkdir -p ../out && cargo run -q -p lombokalgoritma-vectors -- ../$VECTORS > ../out/rust.txt
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: vectors-rust
           path: out/rust.txt
@@ -183,7 +183,7 @@ jobs:
           echo "coverage $pct %"; awk -v p="$pct" 'BEGIN { exit (p >= 90 ? 0 : 1) }'
       - run: go test -race -count=1 ./...
       - run: mkdir -p ../out && go run ./cmd/vectors ../$VECTORS > ../out/go.txt
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: matrix.go == 'stable'
         with:
           name: vectors-go
@@ -207,7 +207,7 @@ jobs:
       - run: mypy --strict python/lombokalgoritma
       - run: cd python && pytest
       - run: mkdir -p out && python -m lombokalgoritma._vectors $VECTORS > out/python.txt
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: matrix.python == '3.12'
         with:
           name: vectors-python
@@ -237,7 +237,7 @@ jobs:
           pct=$(grep -m1 -E '^\s*Lines:' phpunit.txt | grep -oE '[0-9]+\.[0-9]+' | head -1)
           echo "coverage $pct %"; awk -v p="$pct" 'BEGIN { exit (p >= 90 ? 0 : 1) }'
       - run: mkdir -p out && php php/bin/vectors.php $VECTORS > out/php.txt
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: matrix.php == '8.3'
         with:
           name: vectors-php
