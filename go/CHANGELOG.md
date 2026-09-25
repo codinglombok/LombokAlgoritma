@@ -3,6 +3,24 @@
 Maintained by release-please (tags `go/vX.Y.Z`). See the repository [CHANGELOG](../CHANGELOG.md) for the
 full history.
 
+## [0.2.0](https://github.com/codinglombok/LombokAlgoritma/compare/go/v0.1.0...go/v0.2.0) (2026-09-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* SHA-256, HMAC-SHA-256 and HKDF (TS sha256/sha256hex/hmacSha256/hkdf*, subpath `lombokalgoritma/crypto`, and the equivalents in Rust, Go, Python, PHP, Perl, C#) are removed (ADR-016 → lombokencryptdecrypt). Errors carry canonical codes (SPEC §2) in every port; string algorithms operate on Unicode code points. See UPGRADE.md.
+
+### Fixed
+
+* math edge cases, C++/Perl ports, counts script, dual license, CI ([aa2cbfa](https://github.com/codinglombok/LombokAlgoritma/commit/aa2cbfa9413214b79809d42f637b97ccbfcd8490))
+* v0.1.1 ([cbe76d6](https://github.com/codinglombok/LombokAlgoritma/commit/cbe76d6aae438cd1b85143b5528131816f466349))
+
+
+### Changed
+
+* **ports:** Rust workspace in rust/, Go module in go/, fix Python/PHP ports ([c0cdb2a](https://github.com/codinglombok/LombokAlgoritma/commit/c0cdb2a47061adb2e4056ad907ccc75dfc8d9b80))
+* v0.2.0 — crypto removed, one folder per language, vectors identical in 5 ports ([57fda80](https://github.com/codinglombok/LombokAlgoritma/commit/57fda8073006392aec1d9a4f6394cddd300a744d))
+
 ## [0.2.0] — conformance release (SPEC v0.2.0)
 
 The Go port now passes all 92 groups / 1059 cases of `vectors/lombokalgoritma-vectors-v1.json`
