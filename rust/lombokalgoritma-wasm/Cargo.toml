@@ -1,0 +1,24 @@
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+[package]
+name = "lombokalgoritma-wasm"
+description = "WebAssembly bindings (wasm-bindgen) for LombokAlgoritma"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords = ["algorithm", "wasm", "webassembly"]
+categories = ["algorithms", "wasm"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+lombokalgoritma = { path = "../lombokalgoritma", version = "0.1.1", default-features = false } # x-release-please-version
+# wasm-bindgen is confined to this crate (the core crate has zero dependencies).
+wasm-bindgen = "0.2"
+
+[lints]
+workspace = true

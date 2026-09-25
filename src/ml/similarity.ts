@@ -21,7 +21,8 @@ export function l2Norm(v: Float64Array | number[]): number {
 
 /** Cosine similarity [-1, 1] */
 export function cosineSimilarity(a: Float64Array | number[], b: Float64Array | number[]): number {
-  const normA = l2Norm(a), normB = l2Norm(b);
+  const normA = l2Norm(a);
+  const normB = l2Norm(b);
   if (normA === 0 || normB === 0) return 0;
   return dotProduct(a, b) / (normA * normB);
 }
@@ -80,10 +81,15 @@ export function pearson(a: number[], b: number[]): number {
   const n = a.length;
   const meanA = a.reduce((s, x) => s + x, 0) / n;
   const meanB = b.reduce((s, x) => s + x, 0) / n;
-  let num = 0, denA = 0, denB = 0;
+  let num = 0;
+  let denA = 0;
+  let denB = 0;
   for (let i = 0; i < n; i++) {
-    const da = (a[i] as number) - meanA, db = (b[i] as number) - meanB;
-    num += da * db; denA += da * da; denB += db * db;
+    const da = (a[i] as number) - meanA;
+    const db = (b[i] as number) - meanB;
+    num += da * db;
+    denA += da * da;
+    denB += db * db;
   }
   if (denA === 0 || denB === 0) return 0;
   return num / Math.sqrt(denA * denB);

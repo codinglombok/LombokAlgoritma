@@ -20,7 +20,16 @@ export { cosineSimilarity, l2Distance, dotProduct, normalize, batchCosine } from
 
 // Graph module
 export * as Graph from './graph/index.js';
-export { dijkstra, bfs, dfs, floydWarshall, topologicalSort, kruskal, pageRank, aStar } from './graph/index.js';
+export {
+  dijkstra,
+  bfs,
+  dfs,
+  floydWarshall,
+  topologicalSort,
+  kruskal,
+  pageRank,
+  aStar,
+} from './graph/index.js';
 
 // Additional modules
 export * as Compression from './compression/index.js';

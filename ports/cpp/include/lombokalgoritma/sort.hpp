@@ -1,10 +1,12 @@
 // LombokAlgoritma — C++20 Sort Module (header-only)
-// Apache-2.0 — @codinglombok
+// SPDX-License-Identifier: Apache-2.0 OR MIT — @codinglombok
 #pragma once
 #include <algorithm>
 #include <vector>
 #include <functional>
 #include <cstddef>
+#include <cstdint>
+#include <stdexcept>
 
 namespace lombok {
 
@@ -16,7 +18,7 @@ std::vector<T> timsort(const std::vector<T>& arr, Compare cmp = Compare{}) {
     return result;
 }
 
-/// Quicksort — introsort-based (O(n log n), not stable). Uses std::sort.
+/// Quicksort — delegates to std::sort (introsort: quicksort + heapsort fallback), not stable.
 template<typename T, typename Compare = std::less<T>>
 std::vector<T> quicksort(const std::vector<T>& arr, Compare cmp = Compare{}) {
     auto result = arr;
@@ -58,11 +60,14 @@ std::vector<T> heapsort(const std::vector<T>& input, Compare cmp = Compare{}) {
 }
 
 /// Counting sort for integers in [0, max_val].
-std::vector<int> counting_sort(const std::vector<int>& arr, int max_val = -1) {
+inline std::vector<int> counting_sort(const std::vector<int>& arr, int max_val = -1) {
     if (arr.empty()) return {};
     const int k = max_val >= 0 ? max_val : *std::max_element(arr.begin(), arr.end());
     std::vector<int> count(static_cast<std::size_t>(k + 1), 0);
-    for (int v : arr) count[static_cast<std::size_t>(v)]++;
+    for (int v : arr) {
+        if (v < 0 || v > k) throw std::out_of_range("counting_sort: value outside [0, max_val]");
+        count[static_cast<std::size_t>(v)]++;
+    }
     std::vector<int> out;
     out.reserve(arr.size());
     for (int i = 0; i <= k; i++)
@@ -71,11 +76,11 @@ std::vector<int> counting_sort(const std::vector<int>& arr, int max_val = -1) {
 }
 
 /// LSD Radix sort for uint32_t. O(nk).
-std::vector<uint32_t> radix_sort_lsd(const std::vector<uint32_t>& input) {
-    if (input.size() <= 1) return input;
+inline std::vector<std::uint32_t> radix_sort_lsd(const std::vector<uint32_t>& input) {
     auto a = input;
-    std::vector<uint32_t> tmp(a.size());
-    for (uint32_t shift = 0; shift < 32; shift += 8) {
+    if (a.size() <= 1) return a;
+    std::vector<std::uint32_t> tmp(a.size());
+    for (std::uint32_t shift = 0; shift < 32; shift += 8) {
         std::size_t count[256] = {};
         for (auto v : a) count[(v >> shift) & 0xFF]++;
         for (int i = 1; i < 256; i++) count[i] += count[i-1];

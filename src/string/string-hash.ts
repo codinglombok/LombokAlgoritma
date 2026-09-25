@@ -4,11 +4,15 @@
 
 import { wrapAddU32, wrapMulU32 } from '../core/safe-int.js';
 
-/** Polynomial rolling hash — Rabin fingerprint */
+/**
+ * Polynomial rolling hash h = Σ (code(sᵢ) − 96)·baseⁿ⁻¹⁻ⁱ mod `mod`, always in [0, mod).
+ * UTF-16 code units; v0.1.0 returned negative values for characters below 'a' (e.g. 'A', '0').
+ * `base·mod` must stay below 2^53.
+ */
 export function polynomialHash(s: string, base = 31, mod = 1_000_000_007): number {
   let h = 0;
   for (let i = 0; i < s.length; i++) {
-    h = (h * base + (s.charCodeAt(i) - 96)) % mod;
+    h = (((h * base + (s.charCodeAt(i) - 96)) % mod) + mod) % mod;
   }
   return h;
 }
@@ -42,7 +46,8 @@ export function murmurHash3_32(data: Uint8Array | string, seed = 0): number {
   const bytes = typeof data === 'string' ? new TextEncoder().encode(data) : data;
   const n = bytes.length;
   let h = seed >>> 0;
-  const c1 = 0xcc9e2d51, c2 = 0x1b873593;
+  const c1 = 0xcc9e2d51;
+  const c2 = 0x1b873593;
   // Process 4-byte blocks
   const nblocks = Math.floor(n / 4);
   const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
@@ -58,9 +63,15 @@ export function murmurHash3_32(data: Uint8Array | string, seed = 0): number {
   // Tail
   let k = 0;
   switch (n & 3) {
-    case 3: k ^= (bytes[nblocks*4+2]! << 16); // falls through
-    case 2: k ^= (bytes[nblocks*4+1]! << 8);  // falls through
-    case 1: k ^= bytes[nblocks*4]!;
+    // biome-ignore lint/suspicious/noFallthroughSwitchClause: MurmurHash3 tail is an intentional fall-through
+    case 3:
+      k ^= (bytes[nblocks * 4 + 2] ?? 0) << 16;
+    // biome-ignore lint/suspicious/noFallthroughSwitchClause: intentional fall-through
+    case 2:
+      k ^= (bytes[nblocks * 4 + 1] ?? 0) << 8;
+    // falls through
+    case 1:
+      k ^= bytes[nblocks * 4]!;
       k = wrapMulU32(k, c1);
       k = ((k << 15) | (k >>> 17)) >>> 0;
       k = wrapMulU32(k, c2);
@@ -68,43 +79,74 @@ export function murmurHash3_32(data: Uint8Array | string, seed = 0): number {
   }
   h ^= n;
   // Finalize (fmix32)
-  h ^= h >>> 16; h = wrapMulU32(h, 0x85ebca6b);
-  h ^= h >>> 13; h = wrapMulU32(h, 0xc2b2ae35);
+  h ^= h >>> 16;
+  h = wrapMulU32(h, 0x85ebca6b);
+  h ^= h >>> 13;
+  h = wrapMulU32(h, 0xc2b2ae35);
   h ^= h >>> 16;
   return h >>> 0;
 }
 
-/** xxHash32 — extremely fast non-crypto hash */
+const XXH_P32_1 = 0x9e3779b1;
+const XXH_P32_2 = 0x85ebca77;
+const XXH_P32_3 = 0xc2b2ae3d;
+const XXH_P32_4 = 0x27d4eb2f;
+const XXH_P32_5 = 0x165667b1;
+
+function rotl32(x: number, r: number): number {
+  return ((x << r) | (x >>> (32 - r))) >>> 0;
+}
+
+/** xxHash32 accumulator round: acc = rotl(acc + lane·P2, 13)·P1 */
+function xxh32Round(acc: number, lane: number): number {
+  return wrapMulU32(rotl32(wrapAddU32(acc, wrapMulU32(lane, XXH_P32_2)), 13), XXH_P32_1);
+}
+
+/**
+ * xxHash32 (XXH32) — extremely fast non-cryptographic hash, per the reference
+ * specification (github.com/Cyan4973/xxHash, doc/xxhash_spec.md).
+ */
 export function xxHash32(data: Uint8Array | string, seed = 0): number {
   const bytes = typeof data === 'string' ? new TextEncoder().encode(data) : data;
-  const PRIME1 = 0x9e3779b1, PRIME2 = 0x85ebca77, PRIME3 = 0xc2b2ae3d;
-  const PRIME4 = 0x27d4eb2f, PRIME5 = 0x165667b1;
-  let i = 0, h = 0;
   const n = bytes.length;
+  const s = seed >>> 0;
   const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  let i = 0;
+  let h: number;
   if (n >= 16) {
-    let [v1,v2,v3,v4] = [seed+PRIME1+PRIME2, seed+PRIME2, seed, seed-PRIME1].map(v=>v>>>0);
+    let v1 = wrapAddU32(wrapAddU32(s, XXH_P32_1), XXH_P32_2);
+    let v2 = wrapAddU32(s, XXH_P32_2);
+    let v3 = s;
+    let v4 = (s - XXH_P32_1) >>> 0;
     while (i <= n - 16) {
-      const f = (v: number, lane: number) => { v=wrapAddU32(wrapMulU32((v^wrapMulU32(dv.getUint32(i+lane*4,true),PRIME2))>>>0,PRIME1),0);return(((v<<13)|(v>>>19))>>>0); };
-      v1=f(v1,0); v2=f(v2,1); v3=f(v3,2); v4=f(v4,3); i+=16;
+      v1 = xxh32Round(v1, dv.getUint32(i, true));
+      v2 = xxh32Round(v2, dv.getUint32(i + 4, true));
+      v3 = xxh32Round(v3, dv.getUint32(i + 8, true));
+      v4 = xxh32Round(v4, dv.getUint32(i + 12, true));
+      i += 16;
     }
-    h = ((((v1<<1)|(v1>>>31))+(((v2<<7)|(v2>>>25)))+((v3<<12)|(v3>>>20))+((v4<<18)|(v4>>>14)))>>>0);
+    h = wrapAddU32(
+      wrapAddU32(rotl32(v1, 1), rotl32(v2, 7)),
+      wrapAddU32(rotl32(v3, 12), rotl32(v4, 18)),
+    );
   } else {
-    h = wrapAddU32(seed, PRIME5);
+    h = wrapAddU32(s, XXH_P32_5);
   }
-  h = wrapAddU32(h, n);
+  h = wrapAddU32(h, n >>> 0);
   while (i <= n - 4) {
-    h ^= wrapMulU32(dv.getUint32(i, true), PRIME3);
-    h = wrapAddU32(wrapMulU32((h<<17)|(h>>>15),PRIME4), 0);
+    h = wrapAddU32(h, wrapMulU32(dv.getUint32(i, true), XXH_P32_3));
+    h = wrapMulU32(rotl32(h, 17), XXH_P32_4);
     i += 4;
   }
   while (i < n) {
-    h ^= wrapMulU32(bytes[i]!, PRIME5);
-    h = wrapAddU32(wrapMulU32((h<<11)|(h>>>21), PRIME1), 0);
+    h = wrapAddU32(h, wrapMulU32(dv.getUint8(i), XXH_P32_5));
+    h = wrapMulU32(rotl32(h, 11), XXH_P32_1);
     i++;
   }
-  h ^= h >>> 15; h = wrapMulU32(h, PRIME2);
-  h ^= h >>> 13; h = wrapMulU32(h, PRIME3);
-  h ^= h >>> 16;
-  return h >>> 0;
+  h = (h ^ (h >>> 15)) >>> 0;
+  h = wrapMulU32(h, XXH_P32_2);
+  h = (h ^ (h >>> 13)) >>> 0;
+  h = wrapMulU32(h, XXH_P32_3);
+  h = (h ^ (h >>> 16)) >>> 0;
+  return h;
 }

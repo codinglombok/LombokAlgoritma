@@ -1,3 +1,11 @@
+# LombokAlgoritma — release-please (ADR-011: versions come from git tags)
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+#
+# Tags created with GITHUB_TOKEN do not trigger other workflows, so publishing is called from here
+# (reusable publish.yml) as soon as release-please reports a created release.
+#   v*        → npm, PyPI, Packagist        (component ".")
+#   rust-v*   → crates.io                   (component "rust")
+#   go/v*     → proxy.golang.org warm-up    (component "go")
 name: Release Please
 
 on:
@@ -5,16 +13,60 @@ on:
     branches: [main]
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      root_released: ${{ steps.rp.outputs.release_created }}
+      root_tag: ${{ steps.rp.outputs.tag_name }}
+      rust_released: ${{ steps.rp.outputs['rust--release_created'] }}
+      rust_tag: ${{ steps.rp.outputs['rust--tag_name'] }}
+      go_released: ${{ steps.rp.outputs['go--release_created'] }}
+      go_tag: ${{ steps.rp.outputs['go--tag_name'] }}
     steps:
-      - uses: google-github-actions/release-please-action@v4
-        id: release
+      - uses: googleapis/release-please-action@a02a34c4d625f9be7cb89156071d8567266a2445 # v4.2.0
+        id: rp
         with:
-          release-type: node
-          manifest-file: .release-please-manifest.json
           config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  publish-root:
+    needs: release-please
+    if: needs.release-please.outputs.root_released == 'true'
+    uses: ./.github/workflows/publish.yml
+    with:
+      tag: ${{ needs.release-please.outputs.root_tag }}
+      targets: npm,pypi,packagist
+    permissions:
+      contents: read
+      id-token: write
+    secrets: inherit
+
+  publish-rust:
+    needs: release-please
+    if: needs.release-please.outputs.rust_released == 'true'
+    uses: ./.github/workflows/publish.yml
+    with:
+      tag: ${{ needs.release-please.outputs.rust_tag }}
+      targets: crates
+    permissions:
+      contents: read
+      id-token: write
+    secrets: inherit
+
+  publish-go:
+    needs: release-please
+    if: needs.release-please.outputs.go_released == 'true'
+    uses: ./.github/workflows/publish.yml
+    with:
+      tag: ${{ needs.release-please.outputs.go_tag }}
+      targets: go
+    permissions:
+      contents: read
+      id-token: write
+    secrets: inherit

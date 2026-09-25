@@ -7,12 +7,12 @@ export function sieve(n: number): number[] {
   const isComposite = new Uint8Array(n + 1);
   isComposite[0] = isComposite[1] = 1;
   for (let i = 2; i * i <= n; i++) {
-    if (!isComposite[i]) {
+    if (isComposite[i] === 0) {
       for (let j = i * i; j <= n; j += i) isComposite[j] = 1;
     }
   }
   const primes: number[] = [];
-  for (let i = 2; i <= n; i++) if (!isComposite[i]) primes.push(i);
+  for (let i = 2; i <= n; i++) if (isComposite[i] === 0) primes.push(i);
   return primes;
 }
 
@@ -29,7 +29,7 @@ export function segmentedSieve(lo: number, hi: number): number[] {
   }
   const primes: number[] = [];
   for (let i = 0; i < size; i++) {
-    if (!isComposite[i] && lo + i > 1) primes.push(lo + i);
+    if (isComposite[i] === 0 && lo + i > 1) primes.push(lo + i);
   }
   return primes;
 }

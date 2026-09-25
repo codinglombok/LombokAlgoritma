@@ -29,9 +29,7 @@ export type HashFn<T> = (item: T) => number;
 export type EqFn<T> = (a: T, b: T) => boolean;
 
 /** Result type — avoid exceptions for expected failures */
-export type Result<T, E = AlgoError> =
-  | { ok: true; value: T }
-  | { ok: false; error: E };
+export type Result<T, E = AlgoError> = { ok: true; value: T } | { ok: false; error: E };
 
 import type { AlgoError } from './errors.js';
 

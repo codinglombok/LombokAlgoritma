@@ -6,9 +6,6 @@ import { OverflowError } from './errors.js';
 
 const I32_MAX = 2147483647;
 const I32_MIN = -2147483648;
-const U32_MAX = 4294967295;
-const I53_MAX = Number.MAX_SAFE_INTEGER;  // 2^53 - 1
-const I53_MIN = Number.MIN_SAFE_INTEGER;
 
 /** Safe add — throws on overflow for 32-bit signed */
 export function addI32(a: number, b: number): number {
@@ -36,7 +33,7 @@ export function mulSafe(a: number, b: number): number {
 /** Checked unsigned 32-bit add */
 export function addU32(a: number, b: number): number {
   const result = ((a >>> 0) + (b >>> 0)) >>> 0;
-  if (result < (a >>> 0)) throw new OverflowError('addU32', result);
+  if (result < a >>> 0) throw new OverflowError('addU32', result);
   return result;
 }
 
@@ -54,7 +51,7 @@ export function wrapMulU32(a: number, b: number): number {
   const bl = b & 0xffff;
   const lo = al * bl;
   const mid = (al * bh + ah * bl) & 0xffff;
-  return ((lo + (mid << 16)) >>> 0);
+  return (lo + (mid << 16)) >>> 0;
 }
 
 /** Safe integer check */

@@ -9,7 +9,11 @@ export function gcd(a: bigint, b: bigint): bigint {
   if (a === 0n) return b;
   if (b === 0n) return a;
   let shift = 0n;
-  while (((a | b) & 1n) === 0n) { a >>= 1n; b >>= 1n; shift++; }
+  while (((a | b) & 1n) === 0n) {
+    a >>= 1n;
+    b >>= 1n;
+    shift++;
+  }
   while ((a & 1n) === 0n) a >>= 1n;
   while (b !== 0n) {
     while ((b & 1n) === 0n) b >>= 1n;
@@ -21,20 +25,24 @@ export function gcd(a: bigint, b: bigint): bigint {
 
 /** Number GCD (safe for JS numbers up to 2^53) */
 export function gcdNum(a: number, b: number): number {
-  a = Math.abs(a); b = Math.abs(b);
-  while (b !== 0) { [a, b] = [b, a % b]; }
+  a = Math.abs(a);
+  b = Math.abs(b);
+  while (b !== 0) {
+    [a, b] = [b, a % b];
+  }
   return a;
 }
 
 /** Least common multiple */
 export function lcm(a: bigint, b: bigint): bigint {
   if (a === 0n || b === 0n) return 0n;
-  return (a / gcd(a, b)) * b;
+  const r = (a / gcd(a, b)) * b;
+  return r < 0n ? -r : r;
 }
 
 export function lcmNum(a: number, b: number): number {
   if (a === 0 || b === 0) return 0;
-  return Math.abs(a / gcdNum(a, b) * b);
+  return Math.abs((a / gcdNum(a, b)) * b);
 }
 
 /** Extended Euclidean: returns {g, x, y} such that a*x + b*y = g = gcd(a,b) */

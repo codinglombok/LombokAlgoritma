@@ -1,9 +1,9 @@
 {
   "name": "lombokalgoritma",
-  "version": "0.1.0",
-  "description": "Comprehensive multi-language algorithm library — 160+ algorithms, 12 language ports, SIMD-optimized, zero external dependencies. Part of the Lombok Ecosystem.",
+  "version": "0.1.1",
+  "description": "LombokAlgoritma — deterministic, zero-dependency algorithm library (sort, search, graph, math, string, data structures, ML). TypeScript reference of the Lombok Ecosystem.",
   "author": "codinglombok <codinglombok@gmail.com>",
-  "license": "Apache-2.0",
+  "license": "Apache-2.0 OR MIT",
   "homepage": "https://github.com/codinglombok/LombokAlgoritma",
   "repository": {
     "type": "git",
@@ -19,12 +19,10 @@
     "search",
     "graph",
     "data-structure",
-    "cryptography",
     "machine-learning",
     "compression",
     "geometry",
     "string-algorithms",
-    "simd",
     "wasm",
     "zero-dependency",
     "multi-language",
@@ -36,15 +34,8 @@
     "mergesort",
     "astar",
     "huffman",
-    "sha256",
-    "aes",
-    "chacha20",
     "kmeans",
     "bloom-filter",
-    "trie",
-    "red-black-tree",
-    "avl-tree",
-    "leiden",
     "pagerank"
   ],
   "type": "module",
@@ -53,76 +44,78 @@
   "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/types/index.d.ts",
       "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "types": "./dist/types/index.d.ts"
+      "require": "./dist/cjs/index.js"
     },
     "./sort": {
+      "types": "./dist/types/sort/index.d.ts",
       "import": "./dist/esm/sort/index.js",
-      "require": "./dist/cjs/sort/index.js",
-      "types": "./dist/types/sort/index.d.ts"
+      "require": "./dist/cjs/sort/index.js"
     },
     "./search": {
+      "types": "./dist/types/search/index.d.ts",
       "import": "./dist/esm/search/index.js",
-      "require": "./dist/cjs/search/index.js",
-      "types": "./dist/types/search/index.d.ts"
+      "require": "./dist/cjs/search/index.js"
     },
     "./graph": {
+      "types": "./dist/types/graph/index.d.ts",
       "import": "./dist/esm/graph/index.js",
-      "require": "./dist/cjs/graph/index.js",
-      "types": "./dist/types/graph/index.d.ts"
+      "require": "./dist/cjs/graph/index.js"
     },
     "./math": {
+      "types": "./dist/types/math/index.d.ts",
       "import": "./dist/esm/math/index.js",
-      "require": "./dist/cjs/math/index.js",
-      "types": "./dist/types/math/index.d.ts"
+      "require": "./dist/cjs/math/index.js"
     },
     "./string": {
+      "types": "./dist/types/string/index.d.ts",
       "import": "./dist/esm/string/index.js",
-      "require": "./dist/cjs/string/index.js",
-      "types": "./dist/types/string/index.d.ts"
+      "require": "./dist/cjs/string/index.js"
     },
     "./compression": {
+      "types": "./dist/types/compression/index.d.ts",
       "import": "./dist/esm/compression/index.js",
-      "require": "./dist/cjs/compression/index.js",
-      "types": "./dist/types/compression/index.d.ts"
+      "require": "./dist/cjs/compression/index.js"
     },
     "./datastructure": {
+      "types": "./dist/types/datastructure/index.d.ts",
       "import": "./dist/esm/datastructure/index.js",
-      "require": "./dist/cjs/datastructure/index.js",
-      "types": "./dist/types/datastructure/index.d.ts"
+      "require": "./dist/cjs/datastructure/index.js"
     },
     "./geometry": {
+      "types": "./dist/types/geometry/index.d.ts",
       "import": "./dist/esm/geometry/index.js",
-      "require": "./dist/cjs/geometry/index.js",
-      "types": "./dist/types/geometry/index.d.ts"
+      "require": "./dist/cjs/geometry/index.js"
     },
     "./ml": {
+      "types": "./dist/types/ml/index.d.ts",
       "import": "./dist/esm/ml/index.js",
-      "require": "./dist/cjs/ml/index.js",
-      "types": "./dist/types/ml/index.d.ts"
+      "require": "./dist/cjs/ml/index.js"
     },
     "./concurrent": {
+      "types": "./dist/types/concurrent/index.d.ts",
       "import": "./dist/esm/concurrent/index.js",
-      "require": "./dist/cjs/concurrent/index.js",
-      "types": "./dist/types/concurrent/index.d.ts"
+      "require": "./dist/cjs/concurrent/index.js"
     },
     "./crypto": {
-      "import": "./dist/esm/math/sha256.js",
-      "require": "./dist/cjs/math/sha256.js",
-      "types": "./dist/types/math/sha256.d.ts"
+      "types": "./dist/types/crypto/index.d.ts",
+      "import": "./dist/esm/crypto/index.js",
+      "require": "./dist/cjs/crypto/index.js"
     },
     "./hardware": {
+      "types": "./dist/types/hardware/index.d.ts",
       "import": "./dist/esm/hardware/index.js",
-      "require": "./dist/cjs/hardware/index.js",
-      "types": "./dist/types/hardware/index.d.ts"
-    }
+      "require": "./dist/cjs/hardware/index.js"
+    },
+    "./package.json": "./package.json"
   },
   "sideEffects": false,
   "files": [
     "dist/",
     "README.md",
-    "LICENSE",
+    "LICENSE-APACHE",
+    "LICENSE-MIT",
     "CHANGELOG.md"
   ],
   "engines": {
@@ -133,29 +126,29 @@
     "build:esm": "tsup --format esm",
     "build:cjs": "tsup --format cjs",
     "build:types": "tsc -p tsconfig.build.json --emitDeclarationOnly",
-    "build:wasm": "bash scripts/build_wasm.sh",
     "dev": "tsup --watch",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "bench": "vitest bench",
-    "bench:compare": "bash scripts/bench_compare.sh",
     "vectors:generate": "tsx scripts/generate_vectors.ts",
-    "vectors:validate": "bash scripts/validate_vectors.sh",
     "lint": "biome check . && eslint .",
     "lint:fix": "biome check --write . && eslint --fix .",
     "format": "biome format --write .",
     "typecheck": "tsc --noEmit",
     "audit": "npm audit --audit-level=moderate",
-    "deps:check": "bash scripts/check_deps.sh",
-    "security:dudect": "bash scripts/dudect_verify.sh",
     "clean": "rm -rf dist coverage",
-    "prepublishOnly": "npm run clean && npm run build && npm run test && npm run audit"
+    "prepublishOnly": "npm run clean && npm run build && npm test",
+    "counts": "tsx scripts/count_algorithms.ts --write",
+    "counts:check": "tsx scripts/count_algorithms.ts --check"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@eslint/js": "^9.0.0",
     "@types/node": "^22.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
     "@vitest/coverage-v8": "^2.0.0",
-    "biome": "^1.9.0",
     "eslint": "^9.0.0",
     "tsup": "^8.0.0",
     "tsx": "^4.0.0",

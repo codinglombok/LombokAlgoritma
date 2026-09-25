@@ -1,26 +1,103 @@
 {
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
-  "release-type": "node",
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": false,
   "include-v-in-tag": true,
-  "tag-separator": "",
+  "pull-request-title-pattern": "chore${scope}: release${component} ${version}",
   "changelog-sections": [
-    { "type": "feat",     "section": "### Added"    },
-    { "type": "fix",      "section": "### Fixed"    },
-    { "type": "perf",     "section": "### Performance" },
-    { "type": "refactor", "section": "### Refactored" },
-    { "type": "docs",     "section": "### Documentation" },
-    { "type": "test",     "section": "### Tests"    },
-    { "type": "chore",    "section": "### Chores", "hidden": true }
+    {
+      "type": "feat",
+      "section": "Added"
+    },
+    {
+      "type": "fix",
+      "section": "Fixed"
+    },
+    {
+      "type": "perf",
+      "section": "Performance"
+    },
+    {
+      "type": "refactor",
+      "section": "Changed"
+    },
+    {
+      "type": "docs",
+      "section": "Documentation"
+    },
+    {
+      "type": "test",
+      "section": "Tests",
+      "hidden": true
+    },
+    {
+      "type": "chore",
+      "section": "Chores",
+      "hidden": true
+    }
   ],
   "packages": {
     ".": {
       "release-type": "node",
       "package-name": "lombokalgoritma",
+      "component": "lombokalgoritma",
+      "include-component-in-tag": false,
       "changelog-path": "CHANGELOG.md",
-      "bump-minor-pre-major": true,
-      "bump-patch-for-minor-pre-major": false
+      "exclude-paths": [
+        "rust",
+        "go"
+      ],
+      "extra-files": [
+        {
+          "type": "toml",
+          "path": "pyproject.toml",
+          "jsonpath": "$.project.version"
+        },
+        {
+          "type": "generic",
+          "path": "ports/python/lombokalgoritma/__init__.py"
+        },
+        {
+          "type": "json",
+          "path": "ports/ts/jsr.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
+          "path": "ports/ts/deno.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
+    "rust": {
+      "release-type": "simple",
+      "component": "rust",
+      "include-component-in-tag": true,
+      "tag-separator": "-",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "toml",
+          "path": "Cargo.toml",
+          "jsonpath": "$.workspace.package.version"
+        },
+        {
+          "type": "generic",
+          "path": "lombokalgoritma-capi/Cargo.toml"
+        },
+        {
+          "type": "generic",
+          "path": "lombokalgoritma-wasm/Cargo.toml"
+        }
+      ]
+    },
+    "go": {
+      "release-type": "go",
+      "component": "go",
+      "package-name": "github.com/codinglombok/lombokalgoritma/go",
+      "include-component-in-tag": true,
+      "tag-separator": "/",
+      "changelog-path": "CHANGELOG.md"
     }
-  },
-  "pull-request-title-pattern": "chore: release ${version}",
-  "pull-request-header": "automated release for LombokAlgoritma"
+  }
 }

@@ -13,8 +13,10 @@ export function karatsuba(x: bigint, y: bigint): bigint {
   const n = Math.max(x.toString().length, y.toString().length);
   const half = BigInt(Math.ceil(n / 2));
   const B = 10n ** half;
-  const x1 = x / B, x0 = x % B;
-  const y1 = y / B, y0 = y % B;
+  const x1 = x / B;
+  const x0 = x % B;
+  const y1 = y / B;
+  const y0 = y % B;
   const z0 = karatsuba(x0, y0);
   const z2 = karatsuba(x1, y1);
   const z1 = karatsuba(x0 + x1, y0 + y1) - z2 - z0;

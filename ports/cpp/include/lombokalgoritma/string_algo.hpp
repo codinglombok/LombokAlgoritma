@@ -1,5 +1,5 @@
 // LombokAlgoritma — C++20 String Algorithms (header-only)
-// Apache-2.0 — @codinglombok
+// SPDX-License-Identifier: Apache-2.0 OR MIT — @codinglombok
 #pragma once
 #include <string>
 #include <string_view>
@@ -11,7 +11,7 @@
 namespace lombok {
 
 /// KMP search — O(n+m). Returns all start indices.
-std::vector<std::size_t> kmp_search(std::string_view text, std::string_view pattern) {
+inline std::vector<std::size_t> kmp_search(std::string_view text, std::string_view pattern) {
     std::vector<std::size_t> results;
     if (pattern.empty()) return results;
     const auto m = pattern.size();
@@ -30,7 +30,7 @@ std::vector<std::size_t> kmp_search(std::string_view text, std::string_view patt
 }
 
 /// Levenshtein distance — O(mn) time, O(min(m,n)) space.
-std::size_t levenshtein(std::string_view a, std::string_view b) {
+inline std::size_t levenshtein(std::string_view a, std::string_view b) {
     if (a == b) return 0;
     if (a.size() > b.size()) std::swap(a, b);
     std::vector<std::size_t> prev(a.size() + 1), curr(a.size() + 1);
@@ -47,14 +47,14 @@ std::size_t levenshtein(std::string_view a, std::string_view b) {
 }
 
 /// FNV-1a 32-bit hash.
-uint32_t fnv1a32(std::string_view s) noexcept {
+inline std::uint32_t fnv1a32(std::string_view s) noexcept {
     uint32_t h = 0x811c9dc5u;
     for (unsigned char c : s) { h ^= c; h *= 0x01000193u; }
     return h;
 }
 
 /// FNV-1a 64-bit hash.
-uint64_t fnv1a64(std::string_view s) noexcept {
+inline std::uint64_t fnv1a64(std::string_view s) noexcept {
     uint64_t h = 0xcbf29ce484222325ull;
     for (unsigned char c : s) { h ^= c; h *= 0x00000100000001b3ull; }
     return h;

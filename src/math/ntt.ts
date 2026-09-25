@@ -12,6 +12,8 @@ const DEFAULT_G = 3n;
 /** Iterative NTT (forward) */
 export function ntt(a: bigint[], mod = DEFAULT_MOD, g = DEFAULT_G): bigint[] {
   const n = a.length;
+  if (n === 0 || (n & (n - 1)) !== 0) throw new RangeError('ntt: length must be a power of two');
+  if ((mod - 1n) % BigInt(n) !== 0n) throw new RangeError('ntt: length must divide mod − 1');
   const result = [...a];
   // Bit-reversal permutation
   for (let i = 1, j = 0; i < n; i++) {
@@ -27,10 +29,10 @@ export function ntt(a: bigint[], mod = DEFAULT_MOD, g = DEFAULT_G): bigint[] {
       let wn = 1n;
       for (let j = 0; j < len / 2; j++) {
         const u = result[i + j] as bigint;
-        const v = (result[i + j + len / 2] as bigint) * wn % mod;
+        const v = ((result[i + j + len / 2] as bigint) * wn) % mod;
         result[i + j] = (u + v) % mod;
         result[i + j + len / 2] = (u - v + mod) % mod;
-        wn = wn * w % mod;
+        wn = (wn * w) % mod;
       }
     }
   }
@@ -41,17 +43,17 @@ export function ntt(a: bigint[], mod = DEFAULT_MOD, g = DEFAULT_G): bigint[] {
 export function intt(a: bigint[], mod = DEFAULT_MOD, g = DEFAULT_G): bigint[] {
   const result = ntt(a, mod, modPow(g, mod - 2n, mod));
   const nInv = modPow(BigInt(a.length), mod - 2n, mod);
-  return result.map(x => x * nInv % mod);
+  return result.map((x) => (x * nInv) % mod);
 }
 
 /** Polynomial multiplication via NTT */
 export function polyMulNTT(a: bigint[], b: bigint[], mod = DEFAULT_MOD): bigint[] {
   let n = 1;
   while (n < a.length + b.length) n <<= 1;
-  const fa = [...a, ...new Array(n - a.length).fill(0n)] as bigint[];
-  const fb = [...b, ...new Array(n - b.length).fill(0n)] as bigint[];
+  const fa: bigint[] = [...a, ...new Array<bigint>(n - a.length).fill(0n)];
+  const fb: bigint[] = [...b, ...new Array<bigint>(n - b.length).fill(0n)];
   const ta = ntt(fa, mod);
   const tb = ntt(fb, mod);
-  const tc = ta.map((v, i) => v * (tb[i] as bigint) % mod);
+  const tc = ta.map((v, i) => (v * (tb[i] as bigint)) % mod);
   return intt(tc, mod).slice(0, a.length + b.length - 1);
 }

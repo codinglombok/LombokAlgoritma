@@ -6,7 +6,7 @@
 import { fnv1a32, murmurHash3_32 } from '../string/string-hash.js';
 
 export class BloomFilter {
-  private bits: Uint8Array;
+  private readonly bits: Uint8Array;
   private readonly k: number; // number of hash functions
   private readonly m: number; // bit array size
 
@@ -16,7 +16,7 @@ export class BloomFilter {
    */
   constructor(expectedItems: number, falsePositiveRate = 0.01) {
     // Optimal bit array size: m = -n*ln(p) / (ln(2)^2)
-    this.m = Math.ceil(-expectedItems * Math.log(falsePositiveRate) / (Math.LN2 * Math.LN2));
+    this.m = Math.ceil((-expectedItems * Math.log(falsePositiveRate)) / (Math.LN2 * Math.LN2));
     // Optimal k: k = (m/n) * ln(2)
     this.k = Math.max(1, Math.round((this.m / expectedItems) * Math.LN2));
     this.bits = new Uint8Array(Math.ceil(this.m / 8));
@@ -31,7 +31,7 @@ export class BloomFilter {
 
   add(item: string): void {
     for (const pos of this.hashes(item)) {
-      this.bits[pos >> 3]! |= (1 << (pos & 7));
+      this.bits[pos >> 3]! |= 1 << (pos & 7);
     }
   }
 
@@ -45,15 +45,19 @@ export class BloomFilter {
   /** Estimated false positive rate based on fill ratio */
   get estimatedFPR(): number {
     const setBits = this.bits.reduce((acc, b) => acc + popcount(b), 0);
-    return Math.pow(setBits / this.m, this.k);
+    return (setBits / this.m) ** this.k;
   }
 
-  get size(): number { return this.m; }
-  get hashCount(): number { return this.k; }
+  get size(): number {
+    return this.m;
+  }
+  get hashCount(): number {
+    return this.k;
+  }
 }
 
 function popcount(n: number): number {
   n = n - ((n >> 1) & 0x55);
   n = (n & 0x33) + ((n >> 2) & 0x33);
-  return ((n + (n >> 4)) & 0x0f);
+  return (n + (n >> 4)) & 0x0f;
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # LombokAlgoritma — Cross-Language Test Vector Validation
-# Apache-2.0 — @codinglombok
+# SPDX-License-Identifier: Apache-2.0 OR MIT — @codinglombok
 # Runs every available language against shared JSON test vectors
 
 set -euo pipefail
@@ -23,20 +23,17 @@ echo ""
 if command -v node &>/dev/null; then
   echo "--- TypeScript ---"
   if node --input-type=module << 'JSEOF' 2>/dev/null
-    import { sha256hex } from './src/math/sha256.js';
-    const h = sha256hex('');
-    const expected = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
-    if (h !== expected) { console.error('SHA-256 FAIL:', h); process.exit(1); }
-    console.log('SHA-256 vector OK');
+    import { execSync } from 'node:child_process';
+    execSync('npx vitest run tests/core/vectors.test.ts', { stdio: 'inherit' });
 JSEOF
-  then log_pass "TypeScript SHA-256 NIST vector"
-  else log_fail "TypeScript SHA-256 NIST vector"; fi
+  then log_pass "TypeScript shared vectors"
+  else log_fail "TypeScript shared vectors"; fi
 else log_skip "TypeScript (node not found)"; fi
 
 # Rust
 if command -v cargo &>/dev/null; then
   echo "--- Rust ---"
-  if cd "$ROOT" && cargo test --quiet --all-features 2>/dev/null; then
+  if cd "$ROOT/rust" && cargo test --quiet --workspace 2>/dev/null; then
     log_pass "Rust all tests"
   else log_fail "Rust tests"; fi
 else log_skip "Rust (cargo not found)"; fi
@@ -50,9 +47,9 @@ if command -v python3 &>/dev/null && [ -d "$ROOT/ports/python" ]; then
 else log_skip "Python port (not available)"; fi
 
 # Go
-if command -v go &>/dev/null && [ -d "$ROOT/ports/go" ]; then
+if command -v go &>/dev/null && [ -d "$ROOT/go" ]; then
   echo "--- Go ---"
-  if cd "$ROOT/ports/go" && go test ./... -count=1 -q 2>/dev/null; then
+  if cd "$ROOT/go" && go test ./... -count=1 -q 2>/dev/null; then
     log_pass "Go all tests"
   else log_fail "Go tests"; fi
 else log_skip "Go port (not available)"; fi

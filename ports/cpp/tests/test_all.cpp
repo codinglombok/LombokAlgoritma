@@ -1,6 +1,6 @@
 // LombokAlgoritma — C++ Tests (Catch2)
 // Apache-2.0 — @codinglombok
-#define CATCH_CONFIG_MAIN
+
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/catch_approx.hpp>
 #include <lombokalgoritma/sort.hpp>
@@ -46,4 +46,12 @@ TEST_CASE("ML / Vector operations", "[ml]") {
         auto n = normalize({3,4});
         REQUIRE(l2_norm(n) == Approx(1.0).margin(1e-10));
     }
+}
+
+TEST_CASE("v0.1.1 regressions", "[regression]") {
+    REQUIRE_THROWS_AS(counting_sort(std::vector<int>{1, -1}), std::out_of_range);
+    REQUIRE_THROWS_AS(counting_sort(std::vector<int>{5, 1}, 3), std::out_of_range);
+    REQUIRE(radix_sort_lsd(std::vector<std::uint32_t>{7}) == (std::vector<std::uint32_t>{7}));
+    REQUIRE(fnv1a32("a") == 0xe40c292cu);
+    REQUIRE(fnv1a64("a") == 0xaf63dc4c8601ec8cull);
 }

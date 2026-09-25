@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+[package]
+name = "lombokalgoritma"
+description = "LombokAlgoritma — deterministic algorithm library (sort, search, math, string hashes); no_std + alloc"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+readme = "README.md"
+keywords = ["algorithm", "sort", "search", "hash", "no-std"]
+categories = ["algorithms", "data-structures", "no-std"]
+
+[features]
+default = ["std"]
+# `std` only adds std-specific conveniences; the core is `no_std` + `alloc`.
+std = []
+
+[dependencies]
+# Zero runtime dependencies.
+
+[lints]
+workspace = true

@@ -4,7 +4,7 @@
 
 export class DisjointSet {
   private parent: Int32Array;
-  private rank: Uint8Array;
+  private readonly rank: Uint8Array;
   private _count: number;
 
   constructor(n: number) {
@@ -16,19 +16,27 @@ export class DisjointSet {
 
   find(x: number): number {
     if (this.parent[x] !== x) this.parent[x] = this.find(this.parent[x]!); // path compression
-    return this.parent[x]!;
+    return this.parent[x];
   }
 
   union(x: number, y: number): boolean {
-    const rx = this.find(x), ry = this.find(y);
+    const rx = this.find(x);
+    const ry = this.find(y);
     if (rx === ry) return false;
     if (this.rank[rx]! < this.rank[ry]!) this.parent[rx] = ry;
     else if (this.rank[rx]! > this.rank[ry]!) this.parent[ry] = rx;
-    else { this.parent[ry] = rx; this.rank[rx]!++; }
+    else {
+      this.parent[ry] = rx;
+      this.rank[rx]!++;
+    }
     this._count--;
     return true;
   }
 
-  connected(x: number, y: number): boolean { return this.find(x) === this.find(y); }
-  get count(): number { return this._count; }
+  connected(x: number, y: number): boolean {
+    return this.find(x) === this.find(y);
+  }
+  get count(): number {
+    return this._count;
+  }
 }

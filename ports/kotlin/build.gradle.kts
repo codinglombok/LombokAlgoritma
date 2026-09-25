@@ -1,9 +1,10 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
 plugins {
     kotlin("multiplatform") version "1.9.23"
 }
 
 group = "com.codinglombok"
-version = "0.1.0"
+version = "0.1.1"
 
 kotlin {
     jvm {

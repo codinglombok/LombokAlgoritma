@@ -7,17 +7,23 @@
 
     <groupId>com.codinglombok</groupId>
     <artifactId>lombokalgoritma</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
     <packaging>jar</packaging>
 
     <name>LombokAlgoritma</name>
-    <description>Comprehensive multi-language algorithm library — 160+ algorithms, zero external deps. Java port of LombokAlgoritma.</description>
+    <description>LombokAlgoritma — deterministic algorithm library (Java port), zero runtime dependencies.</description>
     <url>https://github.com/codinglombok/LombokAlgoritma</url>
 
     <licenses>
+        <!-- SPDX-License-Identifier: Apache-2.0 OR MIT (dual, at your option) -->
         <license>
-            <name>Apache License, Version 2.0</name>
+            <name>Apache-2.0</name>
             <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+        <license>
+            <name>MIT</name>
+            <url>https://opensource.org/license/mit</url>
             <distribution>repo</distribution>
         </license>
     </licenses>

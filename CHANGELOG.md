@@ -5,28 +5,63 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) — SemVer.
 
 ---
 
-## [Unreleased]
+## [0.1.1] — fix release (PR "fix: v0.1.1")
 
-### Planned (v0.2.0)
-- +15 algoritma baru: FNV-1a, MurmurHash3, xxHash, CityHash, MinHash, LSH,
-  SimHash (64/128-bit), n-gram shingling, SIMD batch cosine, BM25, HNSW core,
-  IVF index, Viterbi, Jaccard similarity batch, edit distance GPU-aware
-- Integrasi resmi: LombokVector ↔ LombokAlgoritma SIMD layer
-- Integrasi resmi: LombokSimHash ↔ LombokAlgoritma (FNV, MinHash, LSH)
-- Integrasi resmi: LombokEncryptDecrypt ↔ LombokAlgoritma (NTT, modular)
-- LombokTableSheet formula engine ↔ LombokAlgoritma sort/math
-- Docs site: docs.lombokalgoritma.dev (GitHub Pages + LombokCSS)
-- Algorithm visualizer browser demo (WASM + LombokCharts)
+First release intended for the registries (npm, crates.io, PyPI, Packagist, Go proxy).
+Version 0.1.0 was tagged in no registry; its entry below overstated the contents (e.g. "160+
+algorithms, 12 ports") — the README status table is now generated from the code.
 
-### Planned (v1.0.0)
-- WASM bundle dari Rust core (wasm-pack)
-- GPU acceleration layer (WebGPU compute shaders)
-- Formal verification proofs untuk critical algorithms
-- FIPS 140-3 self-test module (bersama LombokEncryptDecrypt)
+### Fixed — TypeScript
+- `npm ci` failed: devDependency `biome` → `@biomejs/biome`; ESLint plugins declared.
+- `npm run build` failed (no tsup config): `tsup.config.ts` builds `dist/esm`, `dist/cjs`, `dist/types`
+  for `.` and every subpath; `exports` ordered `types → import → require`; `./package.json` exported.
+- `crt` used the wrong Bézout coefficient; now returns the canonical solution and validates input.
+- `HyperLogLog` indexed registers with raw FNV-1a (poor avalanche) → 8.8 % error at n = 10⁴; fmix32
+  finalizer + explicit small/large-range correction → 0.2 %.
+- `xxHash32` was not XXH32 (XOR instead of ADD, wrong round order); now matches the reference.
+- `SegmentTree` lazy range-add did not scale by segment length; empty tree no longer recurses forever.
+- `Xoshiro256pp` seeding did not follow SplitMix64; now bit-identical to the reference C code.
+- `jumpSearch` missed targets located exactly on a block boundary.
+- `pollardRho`/`factorize` recursed forever for prime powers (9, 25, 49 …).
+- `strassenMul` produced wrong results for odd sizes > 64 (now pads to a power of two).
+- `lcm` could be negative; `polynomialHash` could be negative; `countingSort` accepted out-of-range values.
+- WASM SIMD probe had wrong section sizes (always reported `false`).
+- 26 `tsc --noEmit` errors (unchecked indexing, host globals in `hardware/`, `.ts` import suffix).
+- SHA-256 itself was correct (FIPS 180-4 incl. 1 000 000 × 'a'); the failing tests had wrong expected
+  digests. Same for the timsort ('kiwi' has 4 letters) and pearson (r = 0.6) expectations.
 
----
+### Deprecated
+- `sha256`, `sha256hex`, `hmacSha256`, `hkdf`, `hkdfExtract`, `hkdfExpand`, subpath `./crypto`, and the
+  equivalents in the Rust, Go, Python, PHP and Perl ports → moved to `lombokencryptdecrypt`
+  (ADR-016); **removed in 0.2.0**.
 
-## [0.1.0] — 2026-09-18
+### Added
+- `Pcg32` (PCG-XSH-RR) and `SplitMix64`; unbiased `Xoshiro256pp.nextInt`.
+- Regression suites (`tests/core/regression.test.ts`, `coverage.test.ts`) and a TypeScript runner for
+  `tests/vectors/**`; coverage 99 % lines / 90 % branches.
+- `scripts/count_algorithms.ts` (`npm run counts`, checked in CI).
+- Rust: FNV-1a, MurmurHash3, xxHash32, `upper_bound`; C ABI crate + header; WASM crate.
+- Python: `crt`, `pearson`, `murmur3_32`, `xxhash32`, `sort_with`; PHP: `murmur3_32`, `xxhash32`, `crt`.
+
+### Changed
+- Rust moved to the `rust/` workspace: `lombokalgoritma` (`no_std` + `alloc`, feature `std` default),
+  `lombokalgoritma-capi`, `lombokalgoritma-wasm` (the only crate using wasm-bindgen, ADR-010);
+  toolchain `stable`, MSRV 1.75 (`rust-version`). `mod_pow` uses 128-bit intermediates.
+- Go moved to `go/` as module `github.com/codinglombok/lombokalgoritma/go` (tags `go/vX.Y.Z`); root
+  `go.mod` removed; tests in-package. `JumpSearch` block size √n; `BatchCosine` stable and NaN-free.
+- Python: `quicksort(cmp=…)` honoured; iterative `DisjointSet.find`; sequential float summation.
+- PHP: `Sort.php` did not parse; mergesort doubled the run width twice. Rewritten (PSR-12, PHPStan 9).
+- C++: header functions marked `inline` (ODR); Catch2 via CMake FetchContent. Perl: real quicksort,
+  `mod_pow`/`is_prime` via `Math::BigInt::bmodpow`.
+- License: **Apache-2.0 OR MIT** (`LICENSE-APACHE`, `LICENSE-MIT`, SPDX in every manifest).
+- CI: per-language jobs on the new paths, SHA-pinned actions, MSRV + thumbv7em + wasm32 builds;
+  release-please for npm/PyPI/Packagist (`v*`), crates (`rust-v*`) and Go (`go/v*`).
+
+### Removed
+- Workflows for non-existent fuzz targets and benchmarks; `scripts/publish_all.sh`; root Gradle files;
+  `tests/vectors/sort/introsort.json` (no implementation).
+
+## [0.1.0] — 2026-09-18 (not published; claims below were aspirational — see 0.1.1)
 
 ### Added — Initial Release
 
