@@ -10,7 +10,6 @@ Cryptography (SHA-256, HMAC, HKDF) was removed in v0.2.0 → ``lombokencryptdecr
 
 from __future__ import annotations
 
-import math as _stdmath
 from collections.abc import Sequence
 from typing import NamedTuple, TypeVar
 
