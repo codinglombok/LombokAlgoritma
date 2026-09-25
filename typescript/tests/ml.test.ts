@@ -66,7 +66,7 @@ describe('dotProduct', () => {
 describe('normalize', () => {
   it('unit length', () => {
     const v = normalize([3, 4]);
-    expect(Math.sqrt(v[0]! ** 2 + v[1]! ** 2)).toBeCloseTo(1);
+    expect(Math.hypot(v[0] ?? Number.NaN, v[1] ?? Number.NaN)).toBeCloseTo(1);
     expect(v[0]).toBeCloseTo(0.6);
     expect(v[1]).toBeCloseTo(0.8);
   });
@@ -87,8 +87,8 @@ describe('batchCosine', () => {
       [0.7, 0.7],
     ];
     const results = batchCosine(q, candidates);
-    expect(results[0]!.index).toBe(2); // [1,0] most similar
-    expect(results[0]!.score).toBeCloseTo(1);
+    expect(results[0]?.index).toBe(2); // [1,0] most similar
+    expect(results[0]?.score).toBeCloseTo(1);
   });
 });
 

@@ -22,11 +22,15 @@ export function levenshtein(sa: string, sb: string): number {
     curr[0] = j;
     for (let i = 1; i <= a.length; i++) {
       const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      curr[i] = Math.min(curr[i - 1]! + 1, prev[i]! + 1, prev[i - 1]! + cost);
+      curr[i] = Math.min(
+        (curr[i - 1] as number) + 1,
+        (prev[i] as number) + 1,
+        (prev[i - 1] as number) + cost,
+      );
     }
     [prev, curr] = [curr, prev];
   }
-  return prev[a.length]!;
+  return prev[a.length] as number;
 }
 
 /** Damerau-Levenshtein (allows transpositions) */
@@ -37,35 +41,45 @@ export function damerauLevenshtein(sa: string, sb: string): number {
     n = b.length;
   if (m === 0) return n;
   if (n === 0) return m;
-  const d: number[][] = Array.from({ length: m + 2 }, () => new Array<number>(n + 2).fill(0));
+  // (m + 2) × (n + 2) table, row-major
+  const w = n + 2;
+  const d = new Array<number>((m + 2) * w).fill(0);
+  const at = (i: number, j: number): number => d[i * w + j] as number;
+  const set = (i: number, j: number, v: number): void => {
+    d[i * w + j] = v;
+  };
   const maxDist = m + n;
-  d[0]![0] = maxDist;
+  set(0, 0, maxDist);
   for (let i = 0; i <= m; i++) {
-    d[i + 1]![0] = maxDist;
-    d[i + 1]![1] = i;
+    set(i + 1, 0, maxDist);
+    set(i + 1, 1, i);
   }
   for (let j = 0; j <= n; j++) {
-    d[0]![j + 1] = maxDist;
-    d[1]![j + 1] = j;
+    set(0, j + 1, maxDist);
+    set(1, j + 1, j);
   }
   const da = new Map<string, number>();
   for (let i = 1; i <= m; i++) {
     let db = 0;
     for (let j = 1; j <= n; j++) {
-      const i1 = da.get(b[j - 1]!) ?? 0,
-        j1 = db;
+      const i1 = da.get(b[j - 1] as string) ?? 0;
+      const j1 = db;
       const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      if (!cost) db = j;
-      d[i + 1]![j + 1] = Math.min(
-        d[i]![j]! + cost,
-        d[i + 1]![j]! + 1,
-        d[i]![j + 1]! + 1,
-        d[i1]![j1]! + (i - i1 - 1) + 1 + (j - j1 - 1),
+      if (cost === 0) db = j;
+      set(
+        i + 1,
+        j + 1,
+        Math.min(
+          at(i, j) + cost,
+          at(i + 1, j) + 1,
+          at(i, j + 1) + 1,
+          at(i1, j1) + (i - i1 - 1) + 1 + (j - j1 - 1),
+        ),
       );
     }
-    da.set(a[i - 1]!, i);
+    da.set(a[i - 1] as string, i);
   }
-  return d[m + 1]![n + 1]!;
+  return at(m + 1, n + 1);
 }
 
 /** Jaro similarity [0, 1] */

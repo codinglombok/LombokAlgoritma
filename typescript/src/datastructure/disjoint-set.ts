@@ -15,19 +15,22 @@ export class DisjointSet {
   }
 
   find(x: number): number {
-    if (this.parent[x] !== x) this.parent[x] = this.find(this.parent[x]!); // path compression
-    return this.parent[x];
+    const p = this.parent[x] as number;
+    if (p !== x) this.parent[x] = this.find(p); // path compression
+    return this.parent[x] as number;
   }
 
   union(x: number, y: number): boolean {
     const rx = this.find(x);
     const ry = this.find(y);
     if (rx === ry) return false;
-    if (this.rank[rx]! < this.rank[ry]!) this.parent[rx] = ry;
-    else if (this.rank[rx]! > this.rank[ry]!) this.parent[ry] = rx;
+    const rankX = this.rank[rx] as number;
+    const rankY = this.rank[ry] as number;
+    if (rankX < rankY) this.parent[rx] = ry;
+    else if (rankX > rankY) this.parent[ry] = rx;
     else {
       this.parent[ry] = rx;
-      this.rank[rx]!++;
+      this.rank[rx] = rankX + 1;
     }
     this._count--;
     return true;

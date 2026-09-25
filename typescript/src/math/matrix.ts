@@ -19,17 +19,24 @@ export function matMul(A: Matrix, B: Matrix): Matrix {
   const m = B[0]?.length ?? 0;
   if (A.some((r) => r.length !== k)) throw new InvalidInputError('matMul: inner dimensions differ');
   const C = matCreate(n, m);
-  for (let i = 0; i < n; i++)
-    for (let j = 0; j < m; j++) for (let l = 0; l < k; l++) C[i]![j]! += A[i]![l]! * B[l]![j]!;
+  for (let i = 0; i < n; i++) {
+    const a = A[i] as number[];
+    const c = C[i] as number[];
+    for (let j = 0; j < m; j++) {
+      let sum = c[j] as number;
+      for (let l = 0; l < k; l++) sum += (a[l] as number) * ((B[l] as number[])[j] as number);
+      c[j] = sum;
+    }
+  }
   return C;
 }
 
 export function matAdd(A: Matrix, B: Matrix): Matrix {
-  return A.map((row, i) => row.map((v, j) => v + B[i]![j]!));
+  return A.map((row, i) => row.map((v, j) => v + ((B[i] as number[])[j] as number)));
 }
 
 export function matSub(A: Matrix, B: Matrix): Matrix {
-  return A.map((row, i) => row.map((v, j) => v - B[i]![j]!));
+  return A.map((row, i) => row.map((v, j) => v - ((B[i] as number[])[j] as number)));
 }
 
 function strassen(A: Matrix, B: Matrix): Matrix {
@@ -64,16 +71,15 @@ function split(M: Matrix, h: number): [Matrix, Matrix, Matrix, Matrix] {
 function join(c11: Matrix, c12: Matrix, c21: Matrix, c22: Matrix, h: number): Matrix {
   const n = 2 * h;
   const C = matCreate(n, n);
+  const row = (M: Matrix, i: number): number[] => M[i] as number[];
   for (let i = 0; i < h; i++) {
+    const top = row(C, i);
+    const bottom = row(C, i + h);
     for (let j = 0; j < h; j++) {
-      C[i]![j] = c11[i]![j]!;
-      C[i]![j + h] = c12[i]![j]!;
-    }
-  }
-  for (let i = 0; i < h; i++) {
-    for (let j = 0; j < h; j++) {
-      C[i + h]![j] = c21[i]![j]!;
-      C[i + h]![j + h] = c22[i]![j]!;
+      top[j] = row(c11, i)[j] as number;
+      top[j + h] = row(c12, i)[j] as number;
+      bottom[j] = row(c21, i)[j] as number;
+      bottom[j + h] = row(c22, i)[j] as number;
     }
   }
   return C;

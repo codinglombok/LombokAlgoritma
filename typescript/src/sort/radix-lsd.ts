@@ -24,7 +24,9 @@ export function radixSortLSD(arr: number[]): number[] {
     for (let i = 1; i < 10; i++) (count[i] as number) += count[i - 1] as number;
     for (let i = a.length - 1; i >= 0; i--) {
       const digit = Math.floor((a[i] as number) / exp) % 10;
-      out[--count[digit]!] = a[i] as number;
+      const pos = (count[digit] as number) - 1;
+      count[digit] = pos;
+      out[pos] = a[i] as number;
     }
     for (let i = 0; i < a.length; i++) a[i] = out[i] as number;
     exp *= 10;

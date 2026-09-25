@@ -171,6 +171,11 @@ jobs:
           cache-dependency-path: go/go.mod
       - run: test -z "$(gofmt -l .)" || (gofmt -l . && exit 1)
       - run: go vet ./...
+      - uses: golangci/golangci-lint-action@25e2cdc5eb1d7a04fdc45ff538f1a00e960ae128 # v8.0.0
+        if: matrix.go == 'stable'
+        with:
+          version: v2.5.0
+          working-directory: go
       - run: go test -race -count=1 -coverprofile=coverage.out .
       - name: Coverage ≥ 90 % (library package)
         run: |

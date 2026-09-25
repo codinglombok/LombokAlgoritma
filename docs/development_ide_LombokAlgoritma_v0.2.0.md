@@ -6,7 +6,7 @@
 |---|---|---|
 | TypeScript | Node ≥ 20 | npm, tsup, vitest, biome, eslint (`cd typescript`) |
 | Rust | stable (MSRV 1.75) | cargo fmt/clippy; target thumbv7em-none-eabihf, wasm32-unknown-unknown |
-| Go | ≥ 1.21 | gofmt, go vet, golangci-lint (config v1 → perlu migrasi ke v2) |
+| Go | ≥ 1.21 | gofmt, go vet, golangci-lint v2 (`go/.golangci.yml`) |
 | Python | ≥ 3.10 | ruff, mypy --strict, pytest + pytest-cov |
 | PHP | ≥ 8.2 + gmp, mbstring | composer, phpunit 11, phpstan 9, phpcs PSR-12 |
 

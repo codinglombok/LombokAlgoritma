@@ -16,13 +16,13 @@ export class SegmentTree {
 
   private build(arr: number[], node: number, lo: number, hi: number): void {
     if (lo === hi) {
-      this.tree[node] = arr[lo]!;
+      this.tree[node] = arr[lo] as number;
       return;
     }
     const mid = (lo + hi) >> 1;
     this.build(arr, 2 * node, lo, mid);
     this.build(arr, 2 * node + 1, mid + 1, hi);
-    this.tree[node] = this.tree[2 * node]! + this.tree[2 * node + 1]!;
+    this.tree[node] = (this.tree[2 * node] as number) + (this.tree[2 * node + 1] as number);
   }
 
   /** Apply a pending "+val to every element" to a node covering [lo, hi]. */
@@ -61,6 +61,6 @@ export class SegmentTree {
     const mid = (lo + hi) >> 1;
     this.update(l, r, val, 2 * node, lo, mid);
     this.update(l, r, val, 2 * node + 1, mid + 1, hi);
-    this.tree[node] = this.tree[2 * node]! + this.tree[2 * node + 1]!;
+    this.tree[node] = (this.tree[2 * node] as number) + (this.tree[2 * node + 1] as number);
   }
 }

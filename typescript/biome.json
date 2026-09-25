@@ -24,7 +24,7 @@
         "noArrayIndexKey": "warn"
       },
       "style": {
-        "noNonNullAssertion": "warn",
+        "noNonNullAssertion": "error",
         "useConst": "error",
         "useTemplate": "error",
         "noParameterAssign": "off",

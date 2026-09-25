@@ -21,11 +21,10 @@ export default [
       'no-implied-eval': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/explicit-function-return-type': 'error',
-      // Indexed access under noUncheckedIndexedAccess: `!` after an explicit bounds check is
-      // the documented idiom in hot loops; reported as a warning, tracked for v0.2.0.
-      '@typescript-eslint/no-non-null-assertion': 'warn',
+      // Indexed access under noUncheckedIndexedAccess: use an explicit `as T` after a bounds check.
+      '@typescript-eslint/no-non-null-assertion': 'error',
       // Deprecated aliases (e.g. convexHullGraham) remain until v0.3.0.
-      '@typescript-eslint/no-deprecated': 'warn',
+      '@typescript-eslint/no-deprecated': 'error',
       // TypeScript performs this check; see typescript-eslint "no-undef" guidance.
       'no-undef': 'off',
       '@typescript-eslint/restrict-template-expressions': [

@@ -14,19 +14,19 @@ export class FenwickTree {
     } else {
       this.n = arg.length;
       this.tree = new Array<number>(arg.length + 1).fill(0);
-      for (let i = 0; i < arg.length; i++) this.update(i + 1, arg[i]!);
+      for (let i = 0; i < arg.length; i++) this.update(i + 1, arg[i] as number);
     }
   }
 
   /** Point update: add val to index i (1-based) */
   update(i: number, val: number): void {
-    for (; i <= this.n; i += i & -i) this.tree[i]! += val;
+    for (; i <= this.n; i += i & -i) this.tree[i] = (this.tree[i] as number) + val;
   }
 
   /** Prefix sum [1, i] (1-based) */
   prefixSum(i: number): number {
     let s = 0;
-    for (; i > 0; i -= i & -i) s += this.tree[i]!;
+    for (; i > 0; i -= i & -i) s += this.tree[i] as number;
     return s;
   }
 

@@ -34,7 +34,7 @@ export function murmurHash3_32(data: Uint8Array | string, seed = 0): number {
       k ^= (bytes[nblocks * 4 + 1] ?? 0) << 8;
     // falls through
     case 1:
-      k ^= bytes[nblocks * 4]!;
+      k ^= bytes[nblocks * 4] ?? 0;
       k = wrapMulU32(k, c1);
       k = ((k << 15) | (k >>> 17)) >>> 0;
       k = wrapMulU32(k, c2);
