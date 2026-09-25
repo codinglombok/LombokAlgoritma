@@ -27,7 +27,7 @@ GPG: https://codinglombok.dev/gpg-key.asc (fingerprint: published on GitHub)
 - Patch release: within 30 days for critical, 90 days for moderate
 
 ### Scope
-In-scope: cryptographic primitives (constant-time violations), integer overflow, parser crashes,
+In-scope: integer overflow, decoder/parser crashes (LZ77, RLE, Huffman), algorithmic-complexity DoS,
 incorrect algorithm output that affects security-sensitive use cases, supply chain issues.
 
 Out-of-scope: performance improvements, algorithm selection disagreements,
@@ -35,12 +35,13 @@ non-security-relevant incorrect output.
 
 ## Security Architecture
 
-All cryptographic implementations in LombokAlgoritma follow:
-1. **Constant-time** — no secret-dependent branches or memory accesses
-2. **Zero external deps** — no supply chain in core
-3. **dudect CI** — timing distribution verification on every CI build
-4. **LombokFuzzer** — 10-minute fuzz sessions on all parsers in CI
-5. **SBOM** — software bill of materials on every release
+LombokAlgoritma contains **no cryptography** since v0.2.0 (ADR-016) — SHA-2, HMAC and HKDF moved to
+[LombokEncryptDecrypt](https://github.com/codinglombok/LombokEncryptDecrypt). SipHash-2-4 is provided only as a
+hash-table PRF, not as a protocol MAC. Safeguards:
+1. **Zero runtime dependencies** in every port — no supply chain in the libraries.
+2. **Canonical errors** — malformed input is rejected (`INVALID_INPUT`), never partially decoded.
+3. **Cross-port vectors** — the same 1059 cases run in five languages on every CI build.
+4. **Audits** — npm audit, cargo audit, govulncheck, pip-audit, composer audit, CodeQL; SBOM on `main`.
 
 Acknowledgments for reported vulnerabilities will be credited in CHANGELOG.md
 unless the reporter requests otherwise.

@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.codinglombok</groupId>
+    <artifactId>lombokalgoritma</artifactId>
+    <version>0.2.0</version>
+    <packaging>jar</packaging>
+
+    <name>LombokAlgoritma</name>
+    <description>LombokAlgoritma — deterministic algorithm library (Java port), zero runtime dependencies.</description>
+    <url>https://github.com/codinglombok/LombokAlgoritma</url>
+
+    <licenses>
+        <!-- SPDX-License-Identifier: Apache-2.0 OR MIT (dual, at your option) -->
+        <license>
+            <name>Apache-2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+        <license>
+            <name>MIT</name>
+            <url>https://opensource.org/license/mit</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>codinglombok</id>
+            <name>codinglombok</name>
+            <email>codinglombok@gmail.com</email>
+            <url>https://github.com/codinglombok</url>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/codinglombok/LombokAlgoritma.git</connection>
+        <developerConnection>scm:git:ssh://github.com:codinglombok/LombokAlgoritma.git</developerConnection>
+        <url>https://github.com/codinglombok/LombokAlgoritma</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/codinglombok/LombokAlgoritma/issues</url>
+    </issueManagement>
+
+    <!-- Zero external runtime dependencies -->
+    <dependencies>
+        <!-- TEST ONLY -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.3</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Optional: LombokECC for verified output API -->
+        <!-- Uncomment to enable ECC integration:
+        <dependency>
+            <groupId>com.codinglombok</groupId>
+            <artifactId>lombokecc</artifactId>
+            <version>0.2.0</version>
+            <optional>true</optional>
+        </dependency>
+        -->
+    </dependencies>
+
+    <build>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                    <release>17</release>
+                    <compilerArgs>
+                        <arg>-Xlint:all</arg>
+                        <arg>-Werror</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <includes>
+                        <include>**/*Test.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
+
+            <!-- JaCoCo coverage (require 85%+ line coverage) -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
+                <executions>
+                    <execution>
+                        <goals><goal>prepare-agent</goal></goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals><goal>report</goal></goals>
+                    </execution>
+                    <execution>
+                        <id>check</id>
+                        <goals><goal>check</goal></goals>
+                        <configuration>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.85</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Sources + Javadoc for Maven Central -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals><goal>jar-no-fork</goal></goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.8.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals><goal>jar</goal></goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- GPG signing for Maven Central -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>3.2.4</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals><goal>sign</goal></goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+</project>

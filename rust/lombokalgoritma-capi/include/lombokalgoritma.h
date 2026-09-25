@@ -18,6 +18,9 @@ extern "C" {
 #define LA_HASH_MURMUR3_32 1u
 #define LA_HASH_XXH32 2u
 
+#define LA_HASH64_FNV1A64 0u
+#define LA_HASH64_XXH64 1u
+
 const char *la_version(void);
 int32_t la_sort_u32(uint32_t *data, size_t len);
 int32_t la_sort_i64(int64_t *data, size_t len);
@@ -25,6 +28,8 @@ ptrdiff_t la_binary_search_i64(const int64_t *data, size_t len, int64_t target);
 uint64_t la_gcd_u64(uint64_t a, uint64_t b);
 uint64_t la_mod_pow_u64(uint64_t base, uint64_t exp, uint64_t m);
 uint32_t la_hash32(uint32_t algo, const uint8_t *data, size_t len, uint32_t seed);
+uint64_t la_hash64(uint32_t algo, const uint8_t *data, size_t len, uint64_t seed);
+int32_t la_is_prime_u64(uint64_t n);
 
 #ifdef __cplusplus
 }

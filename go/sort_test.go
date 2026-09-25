@@ -1,66 +1,71 @@
-// LombokAlgoritma — Go Sort Tests
+// LombokAlgoritma — sort tests
 // SPDX-License-Identifier: Apache-2.0 OR MIT — @codinglombok
 
 package lombokalgoritma
 
 import (
-	"reflect"
-	"sort"
+	"cmp"
+	"math"
+	"slices"
 	"testing"
 )
 
-func TestTimsortEmpty(t *testing.T)  { assertEqual(t, Timsort([]int{}), []int{}) }
-func TestTimsortSingle(t *testing.T) { assertEqual(t, Timsort([]int{42}), []int{42}) }
-func TestTimsortSorted(t *testing.T) {
-	assertEqual(t, Timsort([]int{1, 2, 3, 4, 5}), []int{1, 2, 3, 4, 5})
-}
-func TestTimsortReverse(t *testing.T) {
-	assertEqual(t, Timsort([]int{5, 4, 3, 2, 1}), []int{1, 2, 3, 4, 5})
-}
-func TestTimsortDupes(t *testing.T) {
-	assertEqual(t, Timsort([]int{3, 1, 2, 1, 3}), []int{1, 1, 2, 3, 3})
-}
-func TestTimsortNeg(t *testing.T) {
-	assertEqual(t, Timsort([]int{-3, -1, 0, 2, -2}), []int{-3, -2, -1, 0, 2})
-}
-
-func TestQuicksortBasic(t *testing.T) {
-	assertEqual(t, Quicksort([]int{5, 3, 1, 4, 2}), []int{1, 2, 3, 4, 5})
-}
-func TestMergesortBasic(t *testing.T) {
-	assertEqual(t, Mergesort([]int{5, 3, 1, 4, 2}), []int{1, 2, 3, 4, 5})
-}
-func TestRadixSortLSD(t *testing.T) {
-	assertEqual(t,
-		RadixSortLSD([]uint32{170, 45, 75, 90, 802, 24, 2, 66}),
-		[]uint32{2, 24, 45, 66, 75, 90, 170, 802},
-	)
-}
-
-func assertEqual[T any](t *testing.T, got, want T) {
-	t.Helper()
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("got %v, want %v", got, want)
-	}
-}
-
 func TestSortsMatchStdlib(t *testing.T) {
-	seed := uint64(1)
-	next := func() int {
-		seed = seed*6364136223846793005 + 1442695040888963407
-		return int(seed>>33) % 50
-	}
-	for _, n := range []int{0, 1, 15, 16, 17, 32, 33, 100, 1000} {
-		in := make([]int, n)
+	r := NewPcg32(7, 7)
+	for _, n := range []int{0, 1, 2, 15, 16, 17, 31, 32, 33, 64, 100, 1000} {
+		in := make([]int64, n)
 		for i := range in {
-			in[i] = next()
+			v, _ := r.NextBounded(200)
+			in[i] = int64(v) - 100
 		}
-		want := append([]int{}, in...)
-		sort.Ints(want)
-		for name, f := range map[string]func([]int) []int{"timsort": Timsort[int], "quicksort": Quicksort[int], "mergesort": Mergesort[int]} {
-			if got := f(in); !reflect.DeepEqual(got, want) && !(n == 0 && len(got) == 0) {
-				t.Errorf("%s n=%d mismatch", name, n)
+		orig := slices.Clone(in)
+		want := slices.Clone(in)
+		slices.Sort(want)
+		for name, f := range map[string]func([]int64) []int64{
+			"timsort": Timsort[int64], "quicksort": Quicksort[int64], "mergesort": Mergesort[int64],
+			"heapsort": Heapsort[int64], "radix": RadixSortLSD,
+		} {
+			assertEqual(t, f(in), want)
+			if !slices.Equal(in, orig) {
+				t.Fatalf("%s modified its input", name)
 			}
 		}
 	}
+}
+
+func TestRadixFullRange(t *testing.T) {
+	in := []int64{math.MaxInt64, math.MinInt64, 0, -1, 1, math.MinInt64 + 1}
+	want := slices.Clone(in)
+	slices.Sort(want)
+	assertEqual(t, RadixSortLSD(in), want)
+	assertEqual(t, RadixSortLSD([]int64{5}), []int64{5})
+}
+
+func TestStableSorts(t *testing.T) {
+	type kv struct{ k, i int }
+	in := make([]kv, 100)
+	for i := range in {
+		in[i] = kv{(i * 37) % 5, i}
+	}
+	byKey := func(a, b kv) int { return cmp.Compare(a.k, b.k) }
+	want := slices.Clone(in)
+	slices.SortStableFunc(want, byKey)
+	assertEqual(t, TimsortFunc(in, byKey), want)
+	assertEqual(t, MergesortFunc(in, byKey), want)
+	q := QuicksortFunc(in, byKey)
+	h := HeapsortFunc(in, byKey)
+	if !slices.IsSortedFunc(q, byKey) || !slices.IsSortedFunc(h, byKey) {
+		t.Error("unstable sorts must still sort")
+	}
+}
+
+func TestCountingSort(t *testing.T) {
+	assertEqual(t, must(CountingSort([]int{3, 0, 2, 3, 1})), []int{0, 1, 2, 3, 3})
+	assertEqual(t, must(CountingSort([]int{-4})), []int{-4})
+	_, err := CountingSort([]int{3, -1, 2})
+	assertCode(t, err, CodeOutOfRange)
+	_, err = CountingSortMax([]int{3, 9}, 5)
+	assertCode(t, err, CodeOutOfRange)
+	assertEqual(t, must(CountingSortMax([]int{5, 1}, 5)), []int{1, 5})
+	assertEqual(t, must(CountingSortMax(nil, 5)), []int{})
 }

@@ -19,7 +19,7 @@ body:
     attributes:
       label: Vulnerability Type
       options:
-        - Timing side-channel (crypto)
+        - Malformed-input crash (decoder/parser)
         - Integer overflow
         - Algorithm complexity attack (DoS)
         - Incorrect output (correctness)

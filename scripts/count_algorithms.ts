@@ -11,9 +11,10 @@
 //
 // Definitions (normative for the README):
 // * algorithm  = an exported top-level `function` or `class` of the TypeScript reference under
-//                src/<module>/ (module ∉ {core, hardware}); deprecated crypto is reported apart.
+//                typescript/src/<module>/ (module ∉ {core, hardware}; helper files types.ts/bytes.ts excluded).
 // * port API   = a public top-level symbol of a port, found with the per-language pattern below.
-// * status     = ✅ the port has a shared-vector runner (a test that reads the vectors/ files)
+// * groups     = vector groups named in the port's runner sources
+// * status     = ✅ the runner names every group of vectors/lombokalgoritma-vectors-v1.json
 //                🟡 the port has its own tests but no shared-vector runner
 //                —  no tests in the port
 
@@ -30,31 +31,34 @@ interface PortSpec {
   ext: string[];
   pattern: RegExp;
   tests: string[];
-  /** A test file counts as a vector runner when it mentions this path fragment. */
-  vectorMarker: RegExp;
+  /** Runner sources: the groups named there are the groups the port implements. */
+  runner: string[];
   exclude?: RegExp;
 }
 
-const VECTOR_MARKER = /(tests[/\\]vectors|vectors[/\\]lombokalgoritma-vectors)/;
+/** Shared types / byte helpers, not algorithms (graph/types.ts, string/hash/bytes.ts, geometry/types.ts). */
+const HELPER_FILE = /[/\\](types|bytes)\.ts$/;
+const VECTOR_FILE = 'vectors/lombokalgoritma-vectors-v1.json';
+const VECTOR_MARKER = /lombokalgoritma-vectors-v1/;
 
 const PORTS: PortSpec[] = [
   {
     lang: 'TypeScript',
-    src: ['src'],
+    src: ['typescript/src'],
     ext: ['.ts'],
     pattern: /^export (?:async )?(?:function\*?|class) ([A-Za-z_$][\w$]*)/gm,
-    tests: ['tests/core'],
-    vectorMarker: /['"]\.\.['"],\s*['"]vectors['"]|tests[/\\]vectors/,
-    exclude: /[/\\](core|hardware|crypto)[/\\]/,
+    tests: ['typescript/tests'],
+    runner: ['typescript/tests/vectors'],
+    exclude: /[/\\](core|hardware)[/\\]/,
   },
   {
     lang: 'Rust',
     src: ['rust/lombokalgoritma/src'],
     ext: ['.rs'],
     pattern: /^\s*pub fn ([a-z_][\w]*)/gm,
-    tests: ['rust/lombokalgoritma/src', 'rust/lombokalgoritma/tests'],
-    vectorMarker: VECTOR_MARKER,
-    exclude: /[/\\]core[/\\]/,
+    tests: ['rust/lombokalgoritma/src', 'rust/lombokalgoritma/tests', 'rust/lombokalgoritma-vectors/tests'],
+    runner: ['rust/lombokalgoritma-vectors/src'],
+    exclude: /[/\\](core|num\.rs)/,
   },
   {
     lang: 'Go',
@@ -62,83 +66,90 @@ const PORTS: PortSpec[] = [
     ext: ['.go'],
     pattern: /^func ([A-Z]\w*)/gm,
     tests: ['go'],
-    vectorMarker: VECTOR_MARKER,
-    exclude: /_test\.go$/,
+    runner: ['go/internal/vectors'],
+    exclude: /(_test\.go$|[/\\](internal|cmd)[/\\])/,
   },
   {
     lang: 'Python',
-    src: ['ports/python/lombokalgoritma'],
+    src: ['python/lombokalgoritma'],
     ext: ['.py'],
     pattern: /^(?:def|class) ([A-Za-z]\w*)/gm,
-    tests: ['ports/python/tests'],
-    vectorMarker: VECTOR_MARKER,
+    tests: ['python/tests'],
+    runner: ['python/lombokalgoritma/_vectors.py'],
     exclude: /[/\\]_\w+\.py$/,
   },
   {
     lang: 'PHP',
-    src: ['ports/php/src'],
+    src: ['php/src'],
     ext: ['.php'],
-    pattern: /^\s*public static function ([A-Za-z]\w*)/gm,
-    tests: ['ports/php/tests'],
-    vectorMarker: VECTOR_MARKER,
+    pattern: /^\s*public (?:static )?function ([a-z]\w*)/gm,
+    tests: ['php/tests'],
+    runner: ['php/src/LombokAlgoritma/Vectors'],
+    exclude: /[/\\]Vectors[/\\]/,
   },
   {
     lang: 'Java',
-    src: ['ports/java/src/main'],
+    src: ['java/src/main'],
     ext: ['.java'],
     pattern: /^\s*public static (?:<[^>]+> )?[\w<>[\], ]+ (\w+)\(/gm,
-    tests: ['ports/java/src/test'],
-    vectorMarker: VECTOR_MARKER,
+    tests: ['java/src/test'],
+    runner: [],
   },
   {
     lang: 'Kotlin',
-    src: ['ports/kotlin/src/commonMain'],
+    src: ['kotlin/src/commonMain'],
     ext: ['.kt'],
     pattern: /^fun (?:<[^>]+> )?(?:[\w<>]+\.)?(\w+)\(/gm,
-    tests: ['ports/kotlin/src/commonTest'],
-    vectorMarker: VECTOR_MARKER,
+    tests: ['kotlin/src/commonTest'],
+    runner: [],
   },
   {
     lang: 'C#',
-    src: ['ports/csharp/src'],
+    src: ['csharp/src'],
     ext: ['.cs'],
     pattern: /^\s*public static [\w<>[\], ?]+ (\w+)(?:<[^>]+>)?\(/gm,
-    tests: ['ports/csharp/tests'],
-    vectorMarker: VECTOR_MARKER,
+    tests: ['csharp/tests'],
+    runner: [],
   },
   {
     lang: 'C++',
-    src: ['ports/cpp/include'],
+    src: ['cpp/include'],
     ext: ['.hpp'],
     pattern: /^(?:inline |constexpr )?(?:std::)?[\w:<>]+(?:<[^>]*>)? ([a-z_]\w*)\(/gm,
-    tests: ['ports/cpp/tests'],
-    vectorMarker: VECTOR_MARKER,
+    tests: ['cpp/tests'],
+    runner: [],
   },
   {
     lang: 'Swift',
-    src: ['ports/swift/Sources'],
+    src: ['swift/Sources'],
     ext: ['.swift'],
     pattern: /^\s*public (?:static )?func (\w+)/gm,
-    tests: ['ports/swift/Tests'],
-    vectorMarker: VECTOR_MARKER,
+    tests: ['swift/Tests'],
+    runner: [],
   },
   {
     lang: 'Perl',
-    src: ['ports/perl/lib'],
+    src: ['perl/lib'],
     ext: ['.pm'],
     pattern: /^sub ([a-z]\w*)/gm,
-    tests: ['ports/perl/t'],
-    vectorMarker: VECTOR_MARKER,
+    tests: ['perl/t'],
+    runner: [],
   },
   {
     lang: 'SQL',
-    src: ['ports/sql'],
+    src: ['sql'],
     ext: ['.sql'],
     pattern: /^CREATE (?:OR REPLACE )?FUNCTION (?:[\w.]+\.)?"?(\w+)"?/gim,
-    tests: ['ports/sql/tests'],
-    vectorMarker: VECTOR_MARKER,
+    tests: ['sql/tests'],
+    runner: [],
   },
 ];
+
+/** Vector group names, e.g. "graph.dijkstra". */
+function vectorGroups(): string[] {
+  const doc = JSON.parse(readFileSync(join(ROOT, VECTOR_FILE), 'utf8')) as { groups: Record<string, unknown> };
+  return Object.keys(doc.groups).sort();
+}
 
 function walk(dir: string, ext: string[]): string[] {
   const abs = join(ROOT, dir);
@@ -171,57 +182,57 @@ export interface PortReport {
   lang: string;
   api: number;
   tests: number;
+  /** Vector groups named in the port's runner sources. */
+  groups: number;
   status: '✅' | '🟡' | '—';
 }
 
 export interface Report {
   algorithms: number;
-  deprecatedCrypto: number;
   modules: Record<string, string[]>;
   languages: number;
+  vectorGroups: number;
   ports: PortReport[];
 }
 
 export function buildReport(): Report {
-  const tsFiles = walk('src', ['.ts']);
+  const ts = PORTS[0] as PortSpec;
+  const srcRoot = join(ROOT, 'typescript', 'src');
   const modules: Record<string, string[]> = {};
   let algorithms = 0;
-  let deprecatedCrypto = 0;
-  const ts = PORTS[0] as PortSpec;
-  for (const f of tsFiles) {
-    const rel = relative(join(ROOT, 'src'), f).split(sep);
+  for (const f of walk('typescript/src', ['.ts'])) {
+    const rel = relative(srcRoot, f).split(sep);
     const mod = rel.length > 1 ? (rel[0] as string) : '(root)';
-    if (mod === 'core' || mod === 'hardware' || mod === 'crypto' || mod === '(root)') continue;
-    const text = readFileSync(f, 'utf8');
-    const deprecatedFile = /@deprecated/.test(text) && /sha256|hkdf/.test(f);
-    const names = [...text.matchAll(ts.pattern)].map((m) => m[1] as string);
-    if (deprecatedFile) {
-      deprecatedCrypto += names.length;
-      continue;
-    }
+    if (mod === 'core' || mod === 'hardware' || mod === '(root)') continue;
+    if (HELPER_FILE.test(f)) continue;
+    const names = [...readFileSync(f, 'utf8').matchAll(ts.pattern)].map((m) => m[1] as string);
     modules[mod] = [...(modules[mod] ?? []), ...names].sort((a, b) => a.localeCompare(b));
     algorithms += names.length;
   }
 
+  const groups = vectorGroups();
   const ports: PortReport[] = PORTS.map((p) => {
     const files = p.src.flatMap((s) => walk(s, p.ext));
     const api = symbols(files, p.pattern, p.exclude).size;
-    const testFiles = p.tests.flatMap((t) =>
-      walk(t, [...p.ext, '.t', '.test.ts', '.cpp', '.kt', '.swift']),
-    );
-    const testCount = testFiles.filter(
-      (f) => /test|spec|[/\\]t[/\\]/i.test(f) || f.endsWith('.rs'),
-    ).length;
-    const hasRunner = testFiles.some((f) => p.vectorMarker.test(readFileSync(f, 'utf8')));
-    const status: PortReport['status'] = hasRunner ? '✅' : testCount > 0 ? '🟡' : '—';
-    return { lang: p.lang, api, tests: testCount, status };
+    const testFiles = p.tests.flatMap((t) => walk(t, [...p.ext, '.t', '.test.ts', '.cpp', '.kt', '.swift']));
+    const testCount = testFiles.filter((f) => /test|spec|[/\\]t[/\\]/i.test(f) || f.endsWith('.rs')).length;
+    const runnerText = p.runner
+      .flatMap((r) => (r.endsWith(p.ext[0] as string) ? [join(ROOT, r)] : walk(r, p.ext)))
+      .filter((f) => existsSync(f))
+      .map((f) => readFileSync(f, 'utf8'))
+      .join('\n');
+    const covered = groups.filter((g) => runnerText.includes(`'${g}'`) || runnerText.includes(`"${g}"`)).length;
+    const hasRunner = VECTOR_MARKER.test(runnerText) || covered > 0;
+    const status: PortReport['status'] =
+      hasRunner && covered === groups.length ? '✅' : testCount > 0 ? '🟡' : '—';
+    return { lang: p.lang, api, tests: testCount, groups: covered, status };
   });
 
   return {
     algorithms,
-    deprecatedCrypto,
     modules,
     languages: ports.filter((p) => p.api > 0).length,
+    vectorGroups: groups.length,
     ports,
   };
 }
@@ -229,11 +240,7 @@ export function buildReport(): Report {
 export function toMarkdown(r: Report): string {
   const lines: string[] = [];
   lines.push(
-    `**${r.algorithms} algorithms** in the TypeScript reference across ${Object.keys(r.modules).length} modules, **${r.languages} languages** with code${
-      r.deprecatedCrypto > 0
-        ? ` (+${r.deprecatedCrypto} deprecated crypto functions, removed in v0.2.0).`
-        : '.'
-    }`,
+    `**${r.algorithms} algorithms** in the TypeScript reference across ${Object.keys(r.modules).length} modules, **${r.languages} languages** with code, **${r.vectorGroups} shared vector groups**.`,
   );
   lines.push('');
   lines.push('| Module | # | Exported algorithms / structures |', '|---|---:|---|');
@@ -241,11 +248,13 @@ export function toMarkdown(r: Report): string {
     lines.push(`| \`${m}\` | ${names.length} | ${names.map((n) => `\`${n}\``).join(', ')} |`);
   }
   lines.push('');
-  lines.push('| Port | Public API symbols | Status |', '|---|---:|:---:|');
-  for (const p of r.ports) lines.push(`| ${p.lang} | ${p.api} | ${p.status} |`);
+  lines.push('| Port | Public API symbols | Vector groups | Status |', '|---|---:|---:|:---:|');
+  for (const p of r.ports) {
+    lines.push(`| ${p.lang} | ${p.api} | ${p.groups > 0 ? `${p.groups}/${r.vectorGroups}` : '—'} | ${p.status} |`);
+  }
   lines.push('');
   lines.push(
-    '✅ passes the shared test vectors · 🟡 partial — own tests only, no shared-vector runner yet · — no tests',
+    '✅ runner covers every group of `vectors/lombokalgoritma-vectors-v1.json` (CI checks byte-identical output) · 🟡 partial — own tests only · — no tests',
   );
   return lines.join('\n');
 }

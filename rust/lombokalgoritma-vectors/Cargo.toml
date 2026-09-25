@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+[package]
+name = "lombokalgoritma-vectors"
+description = "Shared-vector conformance runner for the LombokAlgoritma Rust port (SPEC §4); not published"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+publish = false
+
+[[bin]]
+name = "lombokalgoritma-vectors"
+path = "src/main.rs"
+
+[dependencies]
+# Zero third-party dependencies: the JSON parser and canonical serializer are in-crate.
+lombokalgoritma = { path = "../lombokalgoritma" }
+
+[lints]
+workspace = true

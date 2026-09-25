@@ -1,47 +1,65 @@
-// LombokAlgoritma — Go String Tests
+// LombokAlgoritma — string algorithm tests
 // SPDX-License-Identifier: Apache-2.0 OR MIT — @codinglombok
 
 package lombokalgoritma
 
 import (
-	"reflect"
+	"math"
 	"testing"
 )
 
-func TestKMPSearch(t *testing.T) {
-	got := KMPSearch("abcabcabc", "abc")
-	want := []int{0, 3, 6}
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("got %v, want %v", got, want)
-	}
+func TestKMP(t *testing.T) {
+	assertEqual(t, KMPSearch("abcabcabc", "abc"), []int{0, 3, 6})
+	assertEqual(t, KMPSearch("😀a😀a", "😀a"), []int{0, 2})
+	assertEqual(t, KMPSearch("hello", ""), []int{})
+	assertEqual(t, KMPSearch("hello", "xyz"), []int{})
 }
-func TestKMPNoMatch(t *testing.T) {
-	if KMPSearch("hello", "xyz") != nil {
-		t.Error("expected nil")
-	}
-}
-func TestLevenshtein(t *testing.T) {
-	cases := []struct {
-		a, b string
-		want int
+
+func TestEditDistances(t *testing.T) {
+	for _, c := range []struct {
+		a, b    string
+		lev, dl int
 	}{
-		{"", "", 0}, {"a", "", 1}, {"kitten", "sitting", 3}, {"hello", "hello", 0},
-	}
-	for _, c := range cases {
-		if got := Levenshtein(c.a, c.b); got != c.want {
-			t.Errorf("levenshtein(%q,%q) = %d, want %d", c.a, c.b, got, c.want)
+		{"", "", 0, 0}, {"a", "", 1, 1}, {"", "ab", 2, 2}, {"kitten", "sitting", 3, 3},
+		{"ca", "abc", 3, 2}, {"😀x", "x😀", 2, 1}, {"abcdef", "abc", 3, 3},
+	} {
+		if got := Levenshtein(c.a, c.b); got != c.lev {
+			t.Errorf("Levenshtein(%q,%q) = %d, want %d", c.a, c.b, got, c.lev)
+		}
+		if got := DamerauLevenshtein(c.a, c.b); got != c.dl {
+			t.Errorf("DamerauLevenshtein(%q,%q) = %d, want %d", c.a, c.b, got, c.dl)
 		}
 	}
 }
-func TestFNV1a32Deterministic(t *testing.T) {
-	a := FNV1a32([]byte("hello"))
-	b := FNV1a32([]byte("hello"))
-	if a != b {
-		t.Error("FNV1a32 not deterministic")
+
+func TestJaro(t *testing.T) {
+	near := func(a, b float64) bool { return math.Abs(a-b) < 1e-12 }
+	if !near(Jaro("MARTHA", "MARHTA"), 0.9444444444444445) || Jaro("", "") != 1 || Jaro("a", "") != 0 {
+		t.Error("Jaro")
+	}
+	if !near(JaroWinkler("MARTHA", "MARHTA", DefaultJaroWinklerPrefixScale), 0.9611111111111111) {
+		t.Error("JaroWinkler")
+	}
+	if Jaro("abc", "xyz") != 0 {
+		t.Error("no matches")
 	}
 }
-func TestFNV1a32Different(t *testing.T) {
-	if FNV1a32([]byte("hello")) == FNV1a32([]byte("world")) {
-		t.Error("FNV1a32 collision on hello/world")
+
+func TestAhoCorasick(t *testing.T) {
+	ac := NewAhoCorasick()
+	for _, p := range []string{"he", "she", "his", "hers", ""} {
+		ac.AddPattern(p)
 	}
+	assertEqual(t, ac.Search("ahishers"), []AhoCorasickMatch{{"his", 1}, {"she", 3}, {"he", 4}, {"hers", 4}})
+	ac.AddPattern("sh") // forces a rebuild
+	assertEqual(t, len(ac.Search("ahishers")), 5)
+	ac.Build()
+	assertEqual(t, ac.Search("xyz"), []AhoCorasickMatch{})
+}
+
+func TestPolynomialHash(t *testing.T) {
+	assertEqual(t, must(PolynomialHash("abc", DefaultPolyHashBase, DefaultPolyHashMod)), int64(1026))
+	assertEqual(t, must(PolynomialHash("\"", 31, 7)), int64(1)) // (34 − 96) mod 7 normalised
+	_, err := PolynomialHash("a", 31, 0)
+	assertCode(t, err, CodeOutOfRange)
 }

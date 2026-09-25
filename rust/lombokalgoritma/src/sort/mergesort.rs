@@ -1,7 +1,15 @@
+// LombokAlgoritma — mergesort
+// SPDX-License-Identifier: Apache-2.0 OR MIT — @codinglombok
 //! Bottom-up stable mergesort, O(n log n) time, O(n) space.
+use core::cmp::Ordering;
 
 /// Ascending stable mergesort.
 pub fn mergesort<T: Ord + Clone>(a: &mut [T]) {
+    mergesort_by(a, Ord::cmp);
+}
+
+/// Stable mergesort by comparator (elements comparing `Equal` keep their input order).
+pub fn mergesort_by<T: Clone, F: FnMut(&T, &T) -> Ordering>(a: &mut [T], mut c: F) {
     let n = a.len();
     if n <= 1 {
         return;
@@ -15,7 +23,7 @@ pub fn mergesort<T: Ord + Clone>(a: &mut [T]) {
             let hi = (lo + 2 * w).min(n);
             let (mut i, mut j, mut k) = (lo, mid, lo);
             while i < mid && j < hi {
-                if a[i] <= a[j] {
+                if c(&a[i], &a[j]) != Ordering::Greater {
                     t[k] = a[i].clone();
                     i += 1;
                 } else {

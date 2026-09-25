@@ -5,6 +5,60 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) — SemVer.
 
 ---
 
+## [0.2.0] — breaking refactor (PR "refactor!: v0.2.0")
+
+Every conformant port (TypeScript, Rust, Python, Go, PHP) now passes the shared vectors
+`vectors/lombokalgoritma-vectors-v1.json` (92 groups, 1059 cases) with **byte-identical** runner output,
+checked in CI (`vectors-crosscheck`). Normative contract: `docs/SPEC_LombokAlgoritma_v0.2.0.md`.
+Migration notes: [UPGRADE.md](UPGRADE.md).
+
+### Removed (BREAKING)
+- Cryptography in every port (ADR-016 → `lombokencryptdecrypt`): TS `sha256`, `sha256hex`, `hmacSha256`,
+  `hkdf`, `hkdfExtract`, `hkdfExpand` and subpath `lombokalgoritma/crypto`; Rust `math::sha256`; Go
+  `SHA256`, `SHA256Hex`, `HMACSHA256`, `HKDF`; Python `sha256`, `sha256_hex`, `hmac_sha256`, `hkdf`; PHP
+  `Math\SHA256`, `Math\Hkdf`; Perl `sha256_hex`; C# `HashFunctions.Sha256*`/`HmacSha256`.
+- `ports/` and root manifests: each language lives in its own top-level folder (`typescript/ rust/ go/
+  python/ php/ java/ kotlin/ csharp/ cpp/ swift/ perl/ sql/`); `tests/vectors/**` replaced by `vectors/`.
+
+### Changed (BREAKING)
+- Errors carry canonical codes (SPEC §2) in all ports: TS `AlgoError.code` (was `RangeError`/`Error`),
+  Rust `Error::code()`, Python `AlgoError.code`, Go `*Error.Code`, PHP `AlgoException::getErrorCode()`.
+- Strings are processed as Unicode code points (KMP indices, edit distances, Jaro, Aho–Corasick,
+  `polynomialHash`); v0.1.x used UTF-16 units (TS) or bytes (Go).
+- Hashes moved to `string/hash` (TS `src/string/hash/*`; still re-exported from `lombokalgoritma/string`).
+- `graph/` and `geometry/` split into one file per algorithm; `convexHullGraham` → `convexHull` (alias kept,
+  deprecated); `huffmanEncode` returns `bitLength` and `codes`; `rleDecode`/`lz77Decompress` reject malformed
+  input; `batchCosine` scores zero vectors 0 and breaks ties by index; `kmeans` uses exact squared distances,
+  a normative k-means++ seeding and reports the number of iterations performed.
+- `modPow` normalises a negative base and rejects `m < 1` / `exp < 0`; `closestPair` uses `√(dx²+dy²)` instead
+  of `Math.hypot`; `BloomFilter.withParams(m, k)` is the portable constructor.
+
+### Added
+- Graph: Tarjan SCC, Prim, Bellman–Ford, max-flow (Dinic), bipartite matching (Hopcroft–Karp) — needed by
+  LombokLeiden and LombokGraphDB; Dijkstra/A*/Prim use a binary heap with total lexicographic keys.
+- Hashes: xxHash64, SipHash-2-4. Compression: `huffmanDecode`.
+- Shared vectors + generator (`npm run vectors:generate|check|run`) and runners in five ports; `vectors/SHA256SUMS`.
+- The 12 standard documents in `docs/` (masterplan, architecture, changelog, map, structure_repo,
+  full_summary_project, guide_how_to_use, how_to_dist, development_ide, API, Lang, SPEC).
+- Ports: Rust, Go, Python and PHP now implement every algorithm of the reference (see README status table);
+  Rust `lombokalgoritma-vectors` runner crate; Go `cmd/vectors`; Python `lombokalgoritma._vectors`;
+  PHP `php/bin/vectors.php`.
+
+### Build
+- Dev tooling (from Dependabot on `main`): vitest 5 + @vitest/coverage-v8 5, ESLint 10 + @eslint/js 10,
+  @types/node 26; TypeScript stays on 5.9 (typescript-eslint 8 does not support TypeScript 7 — Dependabot
+  ignores TS majors); PHPStan `^1.11 || ^2.0` (PHP port clean at level 9 on both); actions setup-node 7,
+  setup-python 7, setup-dotnet 6, codecov 7.1.1, CodeQL 4.38.1 (init and analyze aligned).
+
+### Fixed
+- TS Aho–Corasick never matched patterns with astral characters (trie by code point, scan by UTF-16 unit);
+  `build()` was not idempotent.
+- Python Bloom filter used a non-SPEC second hash; `crt`/`mod_inverse` used floor-division egcd; `pearson([])`
+  raised `ZeroDivisionError`.
+- Go `InterpolationSearch` used float64 positions; `KMPSearch` returned byte offsets; `IsPrime` was
+  probabilistic; FMA fusion could change float results (now blocked).
+- Rust `binary_search` probe order differed from the SPEC; `quicksort` degraded to O(n²) with many equal keys.
+
 ## [0.1.1] — fix release (PR "fix: v0.1.1")
 
 First release intended for the registries (npm, crates.io, PyPI, Packagist, Go proxy).

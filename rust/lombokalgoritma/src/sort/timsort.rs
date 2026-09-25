@@ -1,3 +1,5 @@
+// LombokAlgoritma — timsort
+// SPDX-License-Identifier: Apache-2.0 OR MIT — @codinglombok
 //! Timsort-style stable sort: insertion-sorted runs of `min_run` + bottom-up merges.
 use alloc::vec::Vec;
 use core::cmp::Ordering;

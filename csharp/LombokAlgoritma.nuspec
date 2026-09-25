@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>CodingLombok.LombokAlgoritma</id>
+    <version>0.2.0</version>
+    <title>LombokAlgoritma</title>
+    <authors>codinglombok</authors>
+    <owners>codinglombok</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">Apache-2.0 OR MIT</license>
+    <projectUrl>https://github.com/codinglombok/LombokAlgoritma</projectUrl>
+    <description>Comprehensive algorithm library — 160+ algorithms, 12 language ports,
+zero external dependencies. C# / .NET 8+ port of LombokAlgoritma.
+Part of the Lombok Ecosystem (github.com/codinglombok).</description>
+    <releaseNotes>v0.2.0 — see CHANGELOG.md (crypto removed, ADR-016)</releaseNotes>
+    <copyright>Copyright 2026 codinglombok</copyright>
+    <tags>algorithm sort search graph cryptography machine-learning
+          data-structure geometry compression simd zero-dependency
+          lombok-ecosystem apache</tags>
+    <dependencies>
+      <group targetFramework="net8.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="csharp/src/**/*.cs" target="content" />
+  </files>
+</package>

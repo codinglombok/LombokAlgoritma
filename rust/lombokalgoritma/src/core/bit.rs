@@ -1,3 +1,5 @@
+// LombokAlgoritma — bit helpers
+// SPDX-License-Identifier: Apache-2.0 OR MIT — @codinglombok
 //! Branch-free bit helpers.
 
 /// Returns `a` if `cond == 1`, `b` if `cond == 0`, without branching.

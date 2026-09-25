@@ -49,6 +49,18 @@ pub fn fnv1a32(data: &[u8]) -> u32 {
     la::string::fnv1a32(data)
 }
 
+/// xxHash64 of bytes (`bigint` in JavaScript).
+#[wasm_bindgen(js_name = xxhash64)]
+pub fn xxhash64(data: &[u8], seed: u64) -> u64 {
+    la::string::xxhash64(data, seed)
+}
+
+/// Deterministic Miller–Rabin primality test (exact for every `u64`).
+#[wasm_bindgen(js_name = isPrime)]
+pub fn is_prime(n: u64) -> bool {
+    la::math::is_prime(n)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -62,5 +74,11 @@ mod tests {
         assert!(s[4].is_nan());
         assert_eq!(binary_search_i32(&[1, 3, 5], 5), 2);
         assert_eq!(xxhash32(b"abc", 0), 0x32d1_53ff);
+        assert_eq!(murmur3_32(b"hello", 42), 0xe2db_d2e1);
+        assert_eq!(fnv1a32(b"a"), 0xe40c_292c);
+        assert_eq!(xxhash64(b"", 0), 0xef46_db37_51d8_e999);
+        assert!(is_prime(1_000_000_007));
+        assert_eq!(binary_search_i32(&[1, 3, 5], 4), -1);
+        assert_eq!(version(), env!("CARGO_PKG_VERSION"));
     }
 }
