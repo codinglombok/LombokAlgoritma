@@ -8,14 +8,17 @@ from typing import Any, Protocol, TypeVar
 class Comparable(Protocol):
     """Anything ordered by comparison operators used by the algorithms."""
 
-    def __lt__(self, other: Any, /) -> bool: ...
+    def __lt__(self, other: Any, /) -> bool:
+        pass
 
-    def __le__(self, other: Any, /) -> bool: ...
+    def __le__(self, other: Any, /) -> bool:
+        pass
 
     def __ge__(self, other: Any, /) -> bool:
         pass
 
-    def __eq__(self, other: Any, /) -> bool: ...
+    def __eq__(self, other: Any, /) -> bool:
+        pass
 
 
 CT = TypeVar("CT", bound=Comparable)
