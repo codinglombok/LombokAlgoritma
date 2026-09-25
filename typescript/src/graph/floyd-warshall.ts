@@ -13,6 +13,16 @@ export function floydWarshall(g: Graph): number[][] {
     Array.from({ length: n }, (__, j) => (i === j ? 0 : Number.POSITIVE_INFINITY)),
   );
   for (const e of g.edges) {
+    if (
+      !Number.isSafeInteger(e.from) ||
+      !Number.isSafeInteger(e.to) ||
+      e.from < 0 ||
+      e.from >= n ||
+      e.to < 0 ||
+      e.to >= n
+    ) {
+      continue;
+    }
     const row = dist[e.from] as number[];
     row[e.to] = Math.min(row[e.to] as number, e.weight);
   }
