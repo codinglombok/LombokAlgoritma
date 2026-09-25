@@ -1,8 +1,9 @@
 // LombokAlgoritma — xxHash64 (XXH64)
 // SPDX-License-Identifier: Apache-2.0 OR MIT — @codinglombok
 // Reference: github.com/Cyan4973/xxHash, doc/xxhash_spec.md §"XXH64 Algorithm Description".
-import { MASK64, readU64LE, rotl64, toBytes } from './bytes.js';
+import { readU64LE, rotl64, toBytes } from './bytes.js';
 
+const MASK64 = 0xffff_ffff_ffff_ffffn;
 const P1 = 0x9e3779b185ebca87n;
 const P2 = 0xc2b2ae3d27d4eb4fn;
 const P3 = 0x165667b19e3779f9n;
