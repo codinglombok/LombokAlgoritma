@@ -31,7 +31,7 @@ function round(acc: bigint, lane: bigint): bigint {
 function mergeRound(acc: bigint, val: bigint): bigint {
   return add(mul(acc ^ round(0n, val), P1), P4);
 }
-    let v4 = BigInt.asUintN(64, s - P1);
+    let v4 = add(s, -P1);
 /** xxHash64 of `data` (UTF-8 for strings) with a 64-bit `seed`; returns an unsigned 64-bit bigint. */
 export function xxHash64(data: Uint8Array | string, seed = 0n): bigint {
   const b = toBytes(data);
