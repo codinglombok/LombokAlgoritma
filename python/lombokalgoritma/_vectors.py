@@ -37,7 +37,7 @@ _MAX_SAFE = (1 << 53) - 1
 
 def format_number(x: float) -> str:
     """SPEC §3.2: ECMAScript ``Number::toString`` with ``-0`` kept; NaN/±Infinity as strings."""
-    if x != x:
+    if math.isnan(x):
         return '"NaN"'
     if x == math.inf:
         return '"Infinity"'
