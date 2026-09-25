@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 namespace CodingLombok.LombokAlgoritma.StringAlgo;
 
+/// <summary>String algorithms (SPEC §11).</summary>
 public static class StringAlgorithms
 {
     /// <summary>KMP search — O(n+m). Returns all start indices.</summary>

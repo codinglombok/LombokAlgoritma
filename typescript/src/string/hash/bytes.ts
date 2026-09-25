@@ -17,5 +17,5 @@ export const MASK64 = 0xffffffffffffffffn;
 
 /** 64-bit rotate left. */
 export function rotl64(x: bigint, r: bigint): bigint {
-  return ((x << r) | (x >> (64n - r))) & 0xffffffffffffffffn;
+  return ((x << r) | (x >> (64n - r))) & 0xffff_ffff_ffff_ffffn;
 }

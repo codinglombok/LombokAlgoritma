@@ -1,5 +1,6 @@
 // LombokAlgoritma — Swift Data Structures
-// Apache-2.0 — @codinglombok
+// SPDX-License-Identifier: Apache-2.0 OR MIT — @codinglombok
+import Foundation  // ceil, log, pow, round
 
 /// Bloom Filter — probabilistic set membership test.
 /// No false negatives. Small false positive rate.

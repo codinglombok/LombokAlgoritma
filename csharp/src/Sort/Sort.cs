@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 namespace CodingLombok.LombokAlgoritma.Sort;
 
+/// <summary>Sorting algorithms (SPEC §6).</summary>
 public static class Sorting
 {
     /// <summary>Timsort — stable, adaptive. O(n log n).</summary>

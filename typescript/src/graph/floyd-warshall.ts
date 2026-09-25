@@ -12,17 +12,8 @@ export function floydWarshall(g: Graph): number[][] {
   const dist = Array.from({ length: n }, (_, i) =>
     Array.from({ length: n }, (__, j) => (i === j ? 0 : Number.POSITIVE_INFINITY)),
   );
+  // validateGraph guarantees integer endpoints in [0, n): only real array indices are written.
   for (const e of g.edges) {
-    if (
-      !Number.isSafeInteger(e.from) ||
-      !Number.isSafeInteger(e.to) ||
-      e.from < 0 ||
-      e.from >= n ||
-      e.to < 0 ||
-      e.to >= n
-    ) {
-      continue;
-    }
     const row = dist[e.from] as number[];
     row[e.to] = Math.min(row[e.to] as number, e.weight);
   }

@@ -1,0 +1,24 @@
+# LombokAlgoritma — CodeQL configuration
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+# Query exclusions for confirmed false positives. Each one was "auto-fixed" once and the fix broke
+# the build or the cross-language contract (docs/SPEC_LombokAlgoritma_v0.2.0.md), so it is excluded
+# here instead of being suppressed line by line.
+name: lombokalgoritma
+queries:
+  - uses: security-and-quality
+query-filters:
+  - exclude:
+      # `x & MASK64` with an imported bigint constant: both operands are bigint; the analysis cannot
+      # see the imported type. Autofix produced syntactically broken siphash.ts / xxhash64.ts.
+      id: js/implicit-operand-conversion
+  - exclude:
+      # SPEC §13.2 requires sqrt(dx*dx + dy*dy); math.hypot differs in the last bit between libms
+      # and would break byte-identical output across the five ports.
+      id: py/hypot
+  - exclude:
+      # python/lombokalgoritma/math.py does `import math as _stdmath` — that is the standard library,
+      # not the module itself (absolute imports). Removing it broke isqrt().
+      id: py/import-own-module
+paths-ignore:
+  - vectors
+  - out

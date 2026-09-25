@@ -14,7 +14,9 @@ _Best = tuple[Point2D, Point2D, float]
 def _dist(a: Point2D, b: Point2D) -> float:
     dx = a[0] - b[0]
     dy = a[1] - b[1]
-    return math.hypot(dx, dy)
+    # SPEC §13.2: sqrt(dx*dx + dy*dy), NOT math.hypot — hypot's last bit differs between libms and
+    # would break byte-identical output across the five ports.
+    return math.sqrt(dx * dx + dy * dy)
 
 
 def _brute(pts: Sequence[Point2D]) -> _Best:

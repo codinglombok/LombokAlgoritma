@@ -3,25 +3,16 @@
 // Reference: github.com/Cyan4973/xxHash, doc/xxhash_spec.md §"XXH64 Algorithm Description".
 import { readU64LE, rotl64, toBytes } from './bytes.js';
 
-const MASK64_U64 = BigInt.asUintN(
-  64,
-  typeof MASK64 === 'bigint'
-    ? MASK64
-    : typeof MASK64 === 'number'
-      ? BigInt(MASK64)
-      : (() => {
-          throw new TypeError('MASK64 must be a bigint or number');
-        })()
-);
-
+/** 2^64 − 1 (bigint literal kept local so every `&` operand is visibly a bigint). */
 const MASK64 = 0xffff_ffff_ffff_ffffn;
+
 const P1 = 0x9e3779b185ebca87n;
 const P2 = 0xc2b2ae3d27d4eb4fn;
 const P3 = 0x165667b19e3779f9n;
 const P4 = 0x85ebca77c2b2ae63n;
 const P5 = 0x27d4eb2f165667c5n;
-const mul = (a: bigint, b: bigint): bigint => (a * b) & MASK64_U64;
-const add = (a: bigint, b: bigint): bigint => (a + b) & MASK64_U64;
+
+const mul = (a: bigint, b: bigint): bigint => (a * b) & MASK64;
 const add = (a: bigint, b: bigint): bigint => (a + b) & MASK64;
 
 function round(acc: bigint, lane: bigint): bigint {
@@ -31,7 +22,7 @@ function round(acc: bigint, lane: bigint): bigint {
 function mergeRound(acc: bigint, val: bigint): bigint {
   return add(mul(acc ^ round(0n, val), P1), P4);
 }
-    let v4 = add(s, -P1);
+
 /** xxHash64 of `data` (UTF-8 for strings) with a 64-bit `seed`; returns an unsigned 64-bit bigint. */
 export function xxHash64(data: Uint8Array | string, seed = 0n): bigint {
   const b = toBytes(data);
@@ -42,7 +33,7 @@ export function xxHash64(data: Uint8Array | string, seed = 0n): bigint {
   if (n >= 32) {
     let v1 = add(add(s, P1), P2);
     let v2 = add(s, P2);
-    let v4 = (s - P1) & MASK64_U64;
+    let v3 = s;
     let v4 = (s - P1) & MASK64;
     while (i <= n - 32) {
       v1 = round(v1, readU64LE(b, i));

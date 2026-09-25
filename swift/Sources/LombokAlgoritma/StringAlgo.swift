@@ -29,6 +29,7 @@ public enum StringAlgo {
         if a == b { return 0 }
         var ra = Array(a), rb = Array(b)
         if ra.count > rb.count { swap(&ra, &rb) }
+        if ra.isEmpty { return rb.count }  // `1...0` would trap below
         var prev = Array(0...ra.count)
         for j in 1...rb.count {
             var curr = [j] + Array(repeating: 0, count: ra.count)

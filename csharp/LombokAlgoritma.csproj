@@ -8,10 +8,15 @@
     <PackageId>CodingLombok.LombokAlgoritma</PackageId>
     <Version>0.2.0</Version>
     <Authors>codinglombok</Authors>
-    <Description>Comprehensive algorithm library — 160+ algorithms, zero deps. C# port.</Description>
+    <Description>LombokAlgoritma — deterministic algorithm library (C# port, partial; see README status). Zero dependencies.</Description>
     <PackageLicenseExpression>Apache-2.0 OR MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/codinglombok/LombokAlgoritma</RepositoryUrl>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
+  <ItemGroup>
+    <!-- the xunit project in tests/ has its own csproj; keep its sources out of the library -->
+    <Compile Remove="tests/**" />
+    <None Remove="tests/**" />
+  </ItemGroup>
 </Project>
