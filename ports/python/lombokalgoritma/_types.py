@@ -12,7 +12,8 @@ class Comparable(Protocol):
 
     def __le__(self, other: Any, /) -> bool: ...
 
-    def __ge__(self, other: Any, /) -> bool: ...
+    def __ge__(self, other: Any, /) -> bool:
+        pass
 
     def __eq__(self, other: Any, /) -> bool: ...
 
