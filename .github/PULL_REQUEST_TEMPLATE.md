@@ -24,11 +24,9 @@
 - [ ] Edge cases covered: empty input, single element, max values, Unicode
 
 ## Checklist
-- [ ] `npm run test` passes (TypeScript)
-- [ ] `cargo test --all-features` passes (Rust)
-- [ ] Lint: `npm run lint` / `cargo clippy -- -D warnings`
-- [ ] `bash scripts/validate_vectors.sh` passes
-- [ ] For crypto changes: constant-time verified (`bash scripts/dudect_verify.sh`)
+- [ ] `make test` and `make lint` pass
+- [ ] `make vectors-crosscheck` — five identical runner outputs
+- [ ] SPEC updated for any behaviour change (and vector SHA-256 if vectors changed)
 - [ ] CHANGELOG.md updated
 - [ ] No new external dependencies introduced
 

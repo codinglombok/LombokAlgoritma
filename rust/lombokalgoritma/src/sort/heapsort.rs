@@ -1,3 +1,5 @@
+// LombokAlgoritma — heapsort
+// SPDX-License-Identifier: Apache-2.0 OR MIT — @codinglombok
 //! In-place heapsort, O(n log n), not stable.
 
 /// Ascending in-place heapsort.

@@ -1,9 +1,16 @@
 version: 2
 updates:
   - package-ecosystem: npm
-    directory: "/"
+    directory: "/typescript"
     schedule: { interval: weekly, day: monday }
     labels: ["dependencies", "javascript"]
+    ignore:
+      # typescript-eslint 8 supports TypeScript < 6.1; TypeScript 7 (native) breaks `npm ci` (ERESOLVE).
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+    groups:
+      dev-tooling:
+        patterns: ["*"]
   - package-ecosystem: cargo
     directory: "/rust"
     schedule: { interval: weekly, day: monday }
@@ -13,7 +20,7 @@ updates:
     schedule: { interval: weekly }
     labels: ["dependencies", "go"]
   - package-ecosystem: pip
-    directory: "/"
+    directory: "/python"
     schedule: { interval: weekly }
     labels: ["dependencies", "python"]
   - package-ecosystem: composer

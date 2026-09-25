@@ -1,8 +1,10 @@
 # LombokAlgoritma Code Owners
 *                 @codinglombok
-/src/             @codinglombok
+/typescript/      @codinglombok
 /rust/            @codinglombok
 /go/              @codinglombok
-/ports/           @codinglombok
-/tests/vectors/   @codinglombok
+/python/          @codinglombok
+/php/             @codinglombok
+/vectors/         @codinglombok
+/docs/SPEC_*      @codinglombok
 /.github/         @codinglombok

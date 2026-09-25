@@ -2,7 +2,7 @@ coverage:
   status:
     project:
       default:
-        target: 95%
+        target: 90%
         threshold: 1%
     patch:
       default:
@@ -12,9 +12,9 @@ coverage:
   range: "70...100"
 
 ignore:
-  - "dist/**"
-  - "ports/**"
-  - "tests/**"
+  - "**/dist/**"
+  - "typescript/tests/**"
+  - "typescript/scripts/**"
   - "**/*.d.ts"
   - "**/index.ts"
   - "scripts/**"

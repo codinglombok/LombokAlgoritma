@@ -16,18 +16,25 @@ checksum = "4e7648175b45a9a48536d676f68d918270699102aa8dab5496df06904c914600"
 
 [[package]]
 name = "lombokalgoritma"
-version = "0.1.1"
+version = "0.2.0"
 
 [[package]]
 name = "lombokalgoritma-capi"
-version = "0.1.1"
+version = "0.2.0"
+dependencies = [
+ "lombokalgoritma",
+]
+
+[[package]]
+name = "lombokalgoritma-vectors"
+version = "0.2.0"
 dependencies = [
  "lombokalgoritma",
 ]
 
 [[package]]
 name = "lombokalgoritma-wasm"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "lombokalgoritma",
  "wasm-bindgen",

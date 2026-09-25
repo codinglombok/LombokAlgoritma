@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: existing tag, e.g. v0.1.1, rust-v0.1.1 or go/v0.1.1
+        description: existing tag, e.g. v0.2.0, rust-v0.2.0 or go/v0.2.0
         required: true
       targets:
         description: comma-separated subset of npm,pypi,packagist,crates,go
@@ -57,12 +57,20 @@ jobs:
           node-version: "22"
           registry-url: https://registry.npmjs.org
           cache: npm
+          cache-dependency-path: typescript/package-lock.json
       - run: npm ci
+        working-directory: typescript
       - name: Quality gate
-        run: npm run typecheck && npm run lint && npm test && npm run build
+        working-directory: typescript
+        run: npm run typecheck && npm run lint && npm test && npm run vectors:check && npm run build
       - name: package.json version must equal tag
+        working-directory: typescript
         run: test "$(node -p 'require("./package.json").version')" = "${{ needs.version.outputs.version }}"
+      - name: Copy README / licenses / CHANGELOG into the package
+        working-directory: typescript
+        run: node scripts/copy-meta.mjs
       - run: npm publish --provenance --access public --ignore-scripts
+        working-directory: typescript
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -81,12 +89,14 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
-      - run: python -m pip install -e ".[dev]" build
-      - run: pytest
-      - run: python -m build
+      - run: python -m pip install -e "./python[dev]" build
+      - run: cd python && pytest
+      - run: python -m build python
       - name: wheel version must equal tag
-        run: ls dist/*-${{ needs.version.outputs.version }}-py3-none-any.whl
+        run: ls python/dist/*-${{ needs.version.outputs.version }}-py3-none-any.whl
       - uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc # v1.12.4
+        with:
+          packages-dir: python/dist
 
   packagist:
     needs: version

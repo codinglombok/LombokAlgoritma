@@ -80,3 +80,8 @@ Makefile.cmake
 .DS_Store
 coverage.xml
 .coverage
+
+# Vector runner outputs (compared in CI)
+out/
+.phpunit.result.cache
+.phpunit.cache/

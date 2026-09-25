@@ -1,0 +1,97 @@
+[build-system]
+requires      = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name        = "lombokalgoritma"
+version     = "0.2.0"
+description = "LombokAlgoritma — deterministic algorithm library (Python port), zero runtime dependencies."
+readme      = "README.md"
+license     = "Apache-2.0 OR MIT"
+license-files = ["LICENSE-APACHE", "LICENSE-MIT"]
+authors     = [{ name = "codinglombok", email = "codinglombok@gmail.com" }]
+requires-python = ">=3.10"
+keywords    = [
+  "algorithm", "algorithms", "sort", "search", "graph",
+  "data-structure", "hashing", "machine-learning",
+  "compression", "geometry", "string-algorithms", "prng",
+  "zero-dependency", "lombok-ecosystem"
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3 :: Only",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: Software Development :: Libraries",
+  "Typing :: Typed",
+]
+
+# Zero external runtime dependencies (pure Python, stdlib only)
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "pytest-cov>=5.0",
+  "mypy>=1.10",
+  "ruff>=0.5",
+]
+
+[project.urls]
+Homepage      = "https://github.com/codinglombok/LombokAlgoritma"
+Repository    = "https://github.com/codinglombok/LombokAlgoritma"
+Documentation = "https://github.com/codinglombok/LombokAlgoritma/tree/main/docs"
+"Bug Tracker" = "https://github.com/codinglombok/LombokAlgoritma/issues"
+Changelog     = "https://github.com/codinglombok/LombokAlgoritma/blob/main/CHANGELOG.md"
+
+[tool.hatch.build.targets.wheel]
+packages = ["lombokalgoritma"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/lombokalgoritma",
+  "/tests",
+  "/README.md",
+  "/LICENSE-APACHE",
+  "/LICENSE-MIT",
+]
+
+[tool.pytest.ini_options]
+testpaths        = ["tests"]
+pythonpath       = ["."]
+addopts          = "--tb=short --cov=lombokalgoritma --cov-report=term-missing"
+required_plugins = ["pytest-cov"]
+
+[tool.mypy]
+python_version      = "3.10"
+strict              = true
+warn_return_any     = true
+warn_unused_ignores = true
+files               = ["lombokalgoritma"]
+
+[tool.ruff]
+target-version = "py310"
+line-length    = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "S", "B", "A", "C4", "RET", "SIM"]
+ignore = []
+
+[tool.ruff.lint.isort]
+known-first-party = ["lombokalgoritma"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S311", "SLF001"]  # asserts, seeded PRNG, private access in tests
+
+[tool.coverage.run]
+source = ["lombokalgoritma"]
+omit   = ["*/tests/*", "*/__pycache__/*"]
+
+[tool.coverage.report]
+fail_under   = 90
+show_missing = true

@@ -33,7 +33,7 @@ let package = Package(
     targets: [
         .target(
             name: "LombokAlgoritma",
-            path: "ports/swift/Sources/LombokAlgoritma",
+            path: "swift/Sources/LombokAlgoritma",
             swiftSettings: [
                 .enableExperimentalFeature("StrictConcurrency"),
                 .enableUpcomingFeature("BareSlashRegexLiterals"),
@@ -47,7 +47,7 @@ let package = Package(
         .testTarget(
             name: "LombokAlgoritmaTests",
             dependencies: ["LombokAlgoritma"],
-            path: "ports/swift/Tests"
+            path: "swift/Tests"
         ),
     ],
     swiftLanguageVersions: [.v5]

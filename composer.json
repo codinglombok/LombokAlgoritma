@@ -1,6 +1,6 @@
 {
     "name": "codinglombok/lombokalgoritma",
-    "description": "LombokAlgoritma — deterministic algorithm library (PHP port): sorting, search, number theory, string algorithms and non-cryptographic hashes.",
+    "description": "LombokAlgoritma — deterministic, zero-dependency algorithm library (PHP port): sorting, search, number theory, strings, non-cryptographic hashes, data structures, graphs, ML, geometry and compression.",
     "type": "library",
     "license": "Apache-2.0 OR MIT",
     "authors": [
@@ -31,6 +31,7 @@
     },
     "require": {
         "php": "^8.2",
+        "ext-gmp": "*",
         "ext-mbstring": "*"
     },
     "require-dev": {
@@ -39,17 +40,16 @@
         "squizlabs/php_codesniffer": "^3.10"
     },
     "suggest": {
-        "ext-gmp": "Required by NumberTheory::modPow/modInverse/isPrime/crt (arbitrary precision)",
-        "codinglombok/lombokecc": "For ECC-verified algorithm output API (^0.2.0)"
+        "codinglombok/lombokencryptdecrypt": "Cryptographic hashes/HMAC/HKDF moved there in v0.2.0 (ADR-016)"
     },
     "autoload": {
         "psr-4": {
-            "LombokAlgoritma\\": "ports/php/src/LombokAlgoritma/"
+            "LombokAlgoritma\\": "php/src/LombokAlgoritma/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "LombokAlgoritma\\Tests\\": "ports/php/tests/"
+            "LombokAlgoritma\\Tests\\": "php/tests/"
         }
     },
     "config": {
@@ -58,14 +58,16 @@
         "preferred-install": "dist"
     },
     "scripts": {
-        "test": "phpunit",
-        "analyze": "phpstan analyse ports/php/src --level=9",
-        "lint": "phpcs --standard=PSR12 ports/php/src",
-        "lint:fix": "phpcbf --standard=PSR12 ports/php/src",
+        "test": "phpunit -c php/phpunit.xml",
+        "analyze": "phpstan analyse -c php/phpstan.neon",
+        "lint": "phpcs --standard=PSR12 php/src php/tests php/bin",
+        "lint:fix": "phpcbf --standard=PSR12 php/src php/tests php/bin",
+        "vectors": "@php php/bin/vectors.php vectors/lombokalgoritma-vectors-v1.json",
         "ci": [
             "@lint",
             "@analyze",
-            "@test"
+            "@test",
+            "@vectors"
         ]
     },
     "minimum-stability": "stable",
